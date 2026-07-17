@@ -50,7 +50,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Create the Next.js App Router layout, TypeScript config, Tailwind config, and base directories: `app/`, `components/`, `lib/`, `contracts/`, and `supabase/`.
     - _Requirements: 1.1_
 
-  - [ ] 2.2 Wire Supabase clients and env validation
+  - [x] 2.2 Wire Supabase clients and env validation
     - Read `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`.
     - Add startup validation that fails clearly when required env vars are missing.
     - _Requirements: 1.1, 11.1_
