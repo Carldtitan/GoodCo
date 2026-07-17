@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cancellationSchema, reservationSchema, toCancellationRpc, toReservationRpc } from "@/lib/marketplace/inventory-api";
+import { cancellationSchema, reservationSchema, toCancellationRpc, toReservationRpc, toTransferRpc, transferSchema } from "@/lib/marketplace/inventory-api";
 
 const ids = {
   listingId: "00000000-0000-4000-8000-000000000001",
@@ -21,5 +21,10 @@ describe("marketplace reservation input", () => {
   it("keeps an optional cancellation reason with the reversal", () => {
     const input = cancellationSchema.parse({ ...ids, quantity: 3, unit: "case", reason: "Pickup window changed" });
     expect(toCancellationRpc(input, ids.actorId).p_reason).toBe("Pickup window changed");
+  });
+
+  it("includes optional cold-chain readings in a transfer RPC", () => {
+    const input = transferSchema.parse({ ...ids, sourceLotId: ids.lotId, sourcePantryId: ids.listingId, destinationPantryId: ids.requestId, quantity: 2, unit: "case", temperatureAtPickup: 3.5, temperatureAtReceipt: 4 });
+    expect(toTransferRpc(input, ids.actorId)).toMatchObject({ p_quantity: 2, p_temperature_at_pickup: 3.5, p_temperature_at_receipt: 4 });
   });
 });

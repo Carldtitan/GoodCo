@@ -112,7 +112,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Create `marketplace_cancelled` movement and release reserved quantity.
     - _Requirements: 8.5_
 
-  - [ ] 4.4 Implement transfer-finalize API
+  - [x] 4.4 Implement transfer-finalize API
     - Decrement source inventory, create destination inventory lot, and write `marketplace_transferred` movement.
     - _Requirements: 1.3, 8.4, 9.5_
 
