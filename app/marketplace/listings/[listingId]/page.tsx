@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, CalendarClock, MapPin, PackageCheck, Thermometer } from "lucide-react";
+import { RequestListingForm } from "@/components/request-listing-form";
 import { MarketplaceAccessError, requireActivePantry } from "@/lib/marketplace/access";
 import { createRequestSupabaseClient } from "@/lib/supabase/request";
 
@@ -68,6 +69,7 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
             <div><dt className="text-muted">Date review</dt><dd className="mt-0.5 font-medium capitalize">{lot?.date_review_status?.replaceAll("_", " ") ?? "Not recorded"}</dd></div>
           </dl>
         </section>
+        <RequestListingForm listingId={listingId} quantityAvailable={Number(row.quantity_available)} unit={row.unit} />
       </section>
     );
   } catch (error) {
