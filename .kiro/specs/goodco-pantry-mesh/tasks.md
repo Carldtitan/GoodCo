@@ -157,7 +157,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Show active, reserved, pending approval, fulfilled, expired, and cancelled listings.
     - _Requirements: 7.4, 8.2_
 
-  - [ ] 6.4 Build My Requests
+  - [x] 6.4 Build My Requests
     - Show requested, approved, ready for pickup, picked up, received, and cancelled requests.
     - _Requirements: 8.3, 8.4, 8.5_
 
