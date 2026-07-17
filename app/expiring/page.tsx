@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { listInventoryLotsForPantry } from "@/lib/inventory/queries";
-import { getPantryContext } from "@/lib/pantry/context";
+import { requireSignedInPantryContext } from "@/lib/pantry/require-context";
 
 function relevantDate(lot: {
   moveBy: string | null;
@@ -24,7 +24,7 @@ function daysUntil(date: string | null): number | null {
 }
 
 export default async function ExpiringPage() {
-  const pantryContext = await getPantryContext();
+  const pantryContext = await requireSignedInPantryContext();
   const lots = pantryContext.activePantry
     ? await listInventoryLotsForPantry(pantryContext.activePantry.id)
     : [];
