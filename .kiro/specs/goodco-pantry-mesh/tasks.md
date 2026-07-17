@@ -179,7 +179,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 5.2, 5.3_
 
 - [ ] 8. Build marketplace admin policy console (Owner: Person B)
-  - [ ] 8.1 Build organization approval controls
+  - [x] 8.1 Build organization approval controls
     - Approve or suspend pantry marketplace access.
     - _Requirements: 3.1, 3.2_
 
