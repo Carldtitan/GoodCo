@@ -32,7 +32,7 @@ Fit score: **Weak without warehouse map/bin/pick data; public data helps only wi
 2. [OSHA Warehousing Hazards and Solutions](https://www.osha.gov/warehousing/hazards-solutions) — US; safety guidance. Use to constrain route recommendations. Caveat: qualitative.
 3. [BLS Injuries, Illnesses, and Fatalities](https://www.bls.gov/iif/) — US; annual data/API. Use for safety risk context in warehousing. Caveat: not facility-level.
 4. [Cal/OSHA Census of Fatal Occupational Injuries Dashboard](https://www.dir.ca.gov/dosh/cfoi/) — CA; dashboard. Use for California warehouse/forklift risk context. Caveat: fatal injuries only.
-5. [511 SF Bay Open Data](https://511.org/open-data) — Bay Area; APIs. Use only for external route analogy/demo data if no warehouse map exists. Caveat: not indoor routing.
+5. [511 SF Bay Open Data](https://511.org/open-data) — Bay Area; APIs. Use only for external route analogy or prototype data if no warehouse map exists. Caveat: not indoor routing.
 
 ## 9. Flag produce condition and shelf life with a camera at receiving
 

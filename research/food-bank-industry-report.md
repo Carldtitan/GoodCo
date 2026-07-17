@@ -427,7 +427,7 @@ Avoid starting with:
 - Production-line yield analytics.
 - Donor delivered-vs-committed scoring.
 
-These are real problems, but they require internal WMS, maintenance, production, donor, and receiving data. Without a food bank partner giving data, they will become fake demos.
+These are real problems, but they require internal WMS, maintenance, production, donor, and receiving data. Without a food bank partner giving data, they will become unsupported prototypes.
 
 ## Straightforward Industry Diagnosis
 

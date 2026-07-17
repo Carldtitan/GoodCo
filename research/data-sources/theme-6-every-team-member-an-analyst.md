@@ -6,7 +6,7 @@ Scoring: **Strong** = enough public data to prototype credibly; **Medium** = use
 
 ## 28. Answer a plain question from anyone on the team, no ticket, no SQL
 
-Fit score: **Medium; strong for open-data demo, but real value requires connecting internal WMS/TMS/CRM data.**
+Fit score: **Medium; strong for an open-data prototype, but real value requires connecting internal WMS/TMS/CRM data.**
 
 1. [Census API](https://www.census.gov/data/developers/data-sets.html) — US; API. Use for natural-language questions over demographics and need.
 2. [USDA ERS Food Environment Atlas](https://www.ers.usda.gov/data-products/food-environment-atlas/data-access-and-documentation-downloads) — US; CSV. Use for food environment questions. Caveat: mixed years.

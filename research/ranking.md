@@ -16,7 +16,7 @@ Ranked by **available public/free data quality**:
    Medium. You can use demand, volunteer, food waste, and food insecurity datasets, but the real production problems need internal line data: volunteer attendance, kit demand, station setup, yield, waste, and task timing.
 
 6. **Theme 6: Every Team Member an Analyst**
-   Medium-to-weak as a data product. Good for a demo that queries public/internal data in plain English, but the strongest value depends on connecting internal WMS/TMS/CRM/SOP data. Without that, it risks becoming a generic chatbot.
+   Medium-to-weak as a data product. Good for a prototype that queries public/internal data in plain English, but the strongest value depends on connecting internal WMS/TMS/CRM/SOP data. Without that, it risks becoming a generic chatbot.
 
 7. **Theme 2: The Warehouse That Explains Itself**
    Weakest public-data fit. Almost every valuable problem needs internal warehouse data: bin maps, scanner events, pick history, inventory adjustments, cycle counts, forklift maintenance, dock activity, and product movement velocity.

@@ -30,14 +30,14 @@ Initial operating geography:
 
 The intended ecosystem is SF-Marin Food Bank-style and Alameda County Community Food Bank-style pantry networks. The product should be vendor-agnostic and should not assume those food banks formally endorse or use GoodCo unless they actually do.
 
-No mock marketplace data.
+Real marketplace data only.
 
-For implementation and demo:
+For implementation:
 
 - Start with an empty marketplace.
 - Listings must be created from real inventory records entered through the receiving flow.
 - Public pantry/site data can be imported only from real public sources or user-provided CSVs.
-- If real partner inventory is unavailable, the demo should show live-created records during the demo, not preloaded fake pantry inventory.
+- If real partner inventory is unavailable, the marketplace remains empty until a user creates real inventory and publishes a listing.
 
 ## What We Are Not Building
 
@@ -120,7 +120,7 @@ Flow:
 
 Tools:
 
-- OCR: `Tesseract.js` for hackathon browser demo
+- OCR: `Tesseract.js` for browser-based MVP extraction
 - Better backend OCR later: `PaddleOCR`
 
 ### Path 3: Manual Quick Add
@@ -335,7 +335,7 @@ Use three scopes:
 
 - `local`: correction only applies to one pantry.
 - `network`: correction applies across a food-bank/pantry network after admin approval.
-- `global_seed`: base mappings shipped with the app.
+- `base_catalog`: base category mappings shipped with the app.
 
 Do not automatically promote one volunteer's correction to the whole network. Require approval.
 
@@ -1015,24 +1015,23 @@ Must not:
 - Network admin policies.
 - Export CSV logs.
 
-## No Mock Data Rule
+## Real Data Only Rule
 
-No fake marketplace inventory.
+No synthetic marketplace inventory.
 
 Allowed:
 
-- real records entered during demo,
 - real public pantry/site directory if imported from a public source or user CSV,
 - real barcode/product lookup data from Open Food Facts/USDA,
 - real inventory lots created through the receiving flow.
 
 Not allowed:
 
-- fake pantry surplus preloaded to make marketplace look busy,
-- fake transfer history,
-- fake Bay Area food bank endorsement.
+- synthetic pantry surplus preloaded to make marketplace look busy,
+- synthetic transfer history,
+- invented Bay Area food bank endorsement.
 
-If the marketplace is empty at first, that is acceptable. The demo should create inventory, publish it, then request it from another approved pantry account.
+If the marketplace is empty at first, that is acceptable. Inventory must be created through the receiving workflow before it can appear in the marketplace.
 
 ### Barcode
 
@@ -1058,15 +1057,9 @@ Speech is used only to create editable draft fields.
 
 ### LLM
 
-MVP option:
+- Fireworks-hosted LLM call for categorization and date-parser fallback.
 
-- OpenAI structured-output call for categorization and date-parser fallback.
-
-Cheap/open option:
-
-- local/open model later, such as Qwen or Llama-based classifier.
-
-For hackathon speed, use a hosted LLM for fallback only. Most common items should be handled by barcode lookup and rules.
+Use Fireworks only after barcode lookup, correction memory, and rules have failed or produced low confidence. Most common items should be handled by barcode lookup and rules.
 
 ## Database Tables
 
@@ -1101,7 +1094,7 @@ Persistent memory for corrections.
 Fields:
 
 - `id`
-- `scope` // local, network, global_seed
+- `scope` // local, network, base_catalog
 - `pantry_id`
 - `network_id`
 - `match_type` // barcode, product_name, brand_product, ocr_phrase, keyword_rule
@@ -1266,34 +1259,6 @@ Shows:
 - move-by date
 - quantity
 - storage location
-
-## Demo Data
-
-Seed these demo items:
-
-- canned black beans
-- rice
-- peanut butter
-- cereal
-- milk
-- frozen chicken
-- mixed produce
-- diapers
-- hygiene kit
-
-## Demo Script
-
-1. Scan canned beans barcode.
-2. App fills product info.
-3. App categorizes as dry goods / canned beans.
-4. User says: "Add 24 cans, best by March 12 2027."
-5. User saves lot.
-6. User quick-adds 80 lb mixed produce.
-7. App marks it refrigerated and move-by tomorrow.
-8. Inventory dashboard shows:
-   - dry goods: 24 cans
-   - produce: 80 lb
-   - expiring soon: mixed produce
 
 ## Success Metric
 
