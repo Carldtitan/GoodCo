@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { resolvePantryCategory } from "@/lib/categories/taxonomy";
+import {
+  resolvePantryCategory,
+  shouldUseFireworksCategoryFallback,
+} from "@/lib/categories/taxonomy";
 
 describe("pantry category mapping", () => {
   it("uses correction memory before deterministic rules", () => {
@@ -23,6 +26,7 @@ describe("pantry category mapping", () => {
 
     expect(suggestion.source).toBe("correction_memory");
     expect(suggestion.category).toBe("canned_meals");
+    expect(shouldUseFireworksCategoryFallback(suggestion)).toBe(false);
   });
 
   it("maps product data into pantry categories", () => {

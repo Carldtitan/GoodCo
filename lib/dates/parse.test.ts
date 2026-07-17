@@ -8,6 +8,7 @@ describe("date draft parsing", () => {
     expect(draft.normalizedDate).toBe("2027-03-12");
     expect(draft.labelType).toBe("best_by");
     expect(draft.reviewStatus).toBe("draft_high_confidence");
+    expect(draft.reviewStatus).not.toBe("confirmed");
   });
 
   it("keeps voice transcript raw for review", () => {
