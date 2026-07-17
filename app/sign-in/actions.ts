@@ -2,32 +2,27 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 import { createCookieSupabaseClient } from "@/lib/supabase/ssr";
 
-const signInSchema = z.object({
-  email: z.string().email(),
-});
-
-export async function signInWithEmail(formData: FormData) {
-  const parsed = signInSchema.safeParse({
-    email: formData.get("email"),
-  });
-
-  if (!parsed.success) {
-    redirect("/sign-in?error=email");
-  }
-
+export async function signInWithGoogle() {
   const headerStore = await headers();
   const origin = headerStore.get("origin") ?? "http://localhost:3000";
   const supabase = await createCookieSupabaseClient();
 
-  await supabase.auth.signInWithOtp({
-    email: parsed.data.email,
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      redirectTo: `${origin}/auth/callback`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "select_account",
+      },
     },
   });
 
-  redirect("/sign-in?sent=1");
+  if (error || !data.url) {
+    redirect("/sign-in?error=google");
+  }
+
+  redirect(data.url);
 }

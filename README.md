@@ -53,8 +53,16 @@ Apply the SQL files in `supabase/migrations` in order through the Supabase SQL E
 2. `0002_inventory_marketplace_reservation.sql`
 3. `0003_inventory_marketplace_cancellation.sql`
 4. `0004_inventory_marketplace_transfer.sql`
+5. `0005_google_admin_bootstrap.sql`
 
 The app expects Supabase Auth users to be linked to a pantry through `pantry_memberships`. Without that record, authenticated users cannot access pantry-owned inventory.
+
+Google sign-in must be enabled in Supabase Auth Providers. Add the deployed callback URL to Supabase Auth redirect URLs:
+
+- `https://goodco-weld.vercel.app/auth/callback`
+- `https://goodco-weld.vercel.app/auth/confirm`
+
+The migration `0005_google_admin_bootstrap.sql` grants `carl@uni.minerva.edu` a `network_admin` membership when that Google user exists or signs in.
 
 ## Inventory Stream
 
