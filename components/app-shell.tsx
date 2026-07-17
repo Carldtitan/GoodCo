@@ -1,26 +1,17 @@
 import Link from "next/link";
-import {
-  Archive,
-  ClipboardCheck,
-  Download,
-  GitBranch,
-  LayoutDashboard,
-  PackagePlus,
-  Store,
-} from "lucide-react";
 import { NavLink } from "@/components/nav-link";
 import { PantryStatus } from "@/components/pantry-status";
 import type { PantryContext } from "@/lib/pantry/context";
 
 const navItems = [
-  { href: "/", label: "Receive", icon: PackagePlus },
-  { href: "/inventory", label: "Inventory", icon: Archive },
-  { href: "/expiring", label: "Expiring", icon: ClipboardCheck },
-  { href: "/review", label: "Review", icon: LayoutDashboard },
-  { href: "/marketplace", label: "Marketplace", icon: Store },
-  { href: "/exports", label: "Exports", icon: Download },
-  { href: "/audit", label: "Audit", icon: GitBranch },
-];
+  { href: "/", label: "Receive", icon: "receive" },
+  { href: "/inventory", label: "Inventory", icon: "inventory" },
+  { href: "/expiring", label: "Expiring", icon: "expiring" },
+  { href: "/review", label: "Review", icon: "review" },
+  { href: "/marketplace", label: "Marketplace", icon: "marketplace" },
+  { href: "/exports", label: "Exports", icon: "exports" },
+  { href: "/audit", label: "Audit", icon: "audit" },
+] as const;
 
 export function AppShell({
   children,
