@@ -104,7 +104,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Return only lots where `review_status = confirmed`, `redistribution_allowed = true`, quantity is available, and `tefap_flag = false` by default.
     - _Requirements: 1.2, 1.4, 7.1, 9.2_
 
-  - [ ] 4.2 Implement reservation movement API
+  - [x] 4.2 Implement reservation movement API
     - Create `marketplace_reserved` movement and reduce marketplace-available quantity without finalizing transfer.
     - _Requirements: 1.3, 7.5, 8.1_
 
