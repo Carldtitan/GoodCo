@@ -94,7 +94,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Persist product, lot, classification event, extraction job, and initial receiving movement.
     - _Requirements: 4.5, 11.3_
 
-  - [ ]* 3.8 Add tests for category mapping and date parsing
+  - [x]* 3.8 Add tests for category mapping and date parsing
     - Assert correction memory beats LLM fallback.
     - Assert date drafts require review.
     - _Requirements: 5.2, 5.3, 5.5, 6.1_

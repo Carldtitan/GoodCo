@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { loadCategoryMappings } from "@/lib/categories/memory";
-import { resolvePantryCategory } from "@/lib/categories/taxonomy";
+import {
+  resolvePantryCategory,
+  shouldUseFireworksCategoryFallback,
+} from "@/lib/categories/taxonomy";
 import { readServerEnv } from "@/lib/env";
 import { parseReceivingWithFireworks } from "@/lib/llm/fireworks";
 import { getPantryContext } from "@/lib/pantry/context";
@@ -42,7 +45,7 @@ export async function GET(request: Request) {
     mappings,
   );
 
-  if (category.source === "unknown" || category.confidence < 0.65) {
+  if (shouldUseFireworksCategoryFallback(category)) {
     const fallback = await parseReceivingWithFireworks(
       {
         barcode: result.barcode,

@@ -260,3 +260,9 @@ export function resolvePantryCategory(
     matchedBy: null,
   };
 }
+
+export function shouldUseFireworksCategoryFallback(
+  suggestion: Pick<CategorySuggestion, "source" | "confidence">,
+): boolean {
+  return suggestion.source === "unknown" || suggestion.confidence < 0.65;
+}
