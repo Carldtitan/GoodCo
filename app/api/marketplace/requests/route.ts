@@ -3,6 +3,7 @@ import type { StorageType, Unit } from "@/contracts/goodco-pantry-mesh.types";
 import { MarketplaceAccessError, requireActivePantry } from "@/lib/marketplace/access";
 import { toReservationRpc } from "@/lib/marketplace/inventory-api";
 import { marketplaceRequestSchema } from "@/lib/marketplace/request-api";
+import { requestGuardrailError } from "@/lib/marketplace/request-guardrails";
 import { createRequestSupabaseClient } from "@/lib/supabase/request";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/server";
 
@@ -24,14 +25,8 @@ export async function POST(request: Request) {
       id: string; lot_id: string; source_pantry_id: string; category: string; quantity_available: number | string; unit: Unit; storage_type: StorageType;
       status: string; approval_mode: "auto_approve" | "source_pantry_approval" | "network_admin_approval"; restriction_status: "none" | "admin_required" | "blocked"; move_by: string | null;
     };
-    if (listing.source_pantry_id === activePantry.pantryId) return NextResponse.json({ error: "Choose a listing from another pantry." }, { status: 400 });
-    if (listing.status !== "active" || !listing.move_by || listing.move_by < new Date().toISOString().slice(0, 10) || Number(listing.quantity_available) < parsed.data.quantity) {
-      return NextResponse.json({ error: "This listing is no longer available." }, { status: 409 });
-    }
-    if (!activePantry.storageCapabilities.includes(listing.storage_type)) {
-      return NextResponse.json({ error: "Your pantry does not support this storage requirement." }, { status: 409 });
-    }
-    if (listing.restriction_status === "blocked") return NextResponse.json({ error: "This item is restricted by network policy." }, { status: 403 });
+    const guardrailError = requestGuardrailError({ requestingPantryId: activePantry.pantryId, storageCapabilities: activePantry.storageCapabilities, quantity: parsed.data.quantity, listing: { sourcePantryId: listing.source_pantry_id, quantityAvailable: Number(listing.quantity_available), storageType: listing.storage_type, status: listing.status, moveBy: listing.move_by, restrictionStatus: listing.restriction_status } });
+    if (guardrailError) return NextResponse.json({ error: guardrailError }, { status: guardrailError.includes("restricted") ? 403 : guardrailError.includes("another pantry") ? 400 : 409 });
 
     const serviceClient = createServiceRoleSupabaseClient();
     const { data: policy } = activePantry.networkId
