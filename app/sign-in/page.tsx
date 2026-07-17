@@ -8,6 +8,8 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       ? "Enter a valid email."
       : params.error === "rate_limit"
         ? "Too many links sent. Try again shortly."
+        : params.error === "link"
+          ? "Link expired. Send a new link."
         : params.error
           ? "Could not send link."
           : null;

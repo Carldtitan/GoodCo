@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const supabase = await createCookieSupabaseClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    return NextResponse.redirect(new URL("/sign-in?error=email", requestUrl.origin));
+    return NextResponse.redirect(new URL("/sign-in?error=link", requestUrl.origin));
   }
 
   return NextResponse.redirect(new URL("/", requestUrl.origin));
