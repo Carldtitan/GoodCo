@@ -170,7 +170,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Show pantry lots with category, quantity, storage, date status, review status, and marketplace eligibility.
     - _Requirements: 4.5, 7.1_
 
-  - [ ] 7.2 Build expiring-soon view
+  - [x] 7.2 Build expiring-soon view
     - Show lots by move-by urgency and storage type.
     - _Requirements: 5.6_
 
