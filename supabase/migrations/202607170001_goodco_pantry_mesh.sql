@@ -180,7 +180,15 @@ create policy "network admins manage memberships" on pantry_memberships for all 
   public.is_network_admin((select network_id from pantries where id = pantry_id))
 ) with check (public.is_network_admin((select network_id from pantries where id = pantry_id)));
 create policy "authenticated users read products" on products for select to authenticated using (true);
-create policy "pantry members read lots" on inventory_lots for select using (public.is_pantry_member(pantry_id));
+create policy "network members read listed lots" on inventory_lots for select using (
+  public.is_pantry_member(pantry_id) or exists (
+    select 1 from marketplace_listings ml
+    join pantry_memberships pm on pm.user_id = auth.uid()
+    join pantries requesting_pantry on requesting_pantry.id = pm.pantry_id
+    join pantries source_pantry on source_pantry.id = ml.source_pantry_id
+    where ml.lot_id = inventory_lots.id and requesting_pantry.network_id = source_pantry.network_id
+  )
+);
 create policy "pantry members read movements" on inventory_movements for select using (public.is_pantry_member((select pantry_id from inventory_lots where id = lot_id)));
 create policy "network members browse listings" on marketplace_listings for select using (public.is_network_admin((select network_id from pantries where id = source_pantry_id)) or exists (
   select 1 from pantry_memberships pm join pantries p on p.id = pm.pantry_id

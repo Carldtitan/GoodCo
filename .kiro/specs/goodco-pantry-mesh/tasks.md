@@ -135,7 +135,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Show active listings with category, county, storage, move-by urgency, availability confidence, and distance/filter controls.
     - _Requirements: 3.3, 7.3_
 
-  - [ ] 5.4 Build listing detail
+  - [x] 5.4 Build listing detail
     - Show item, quantity, source pantry, pickup details, traceability fields, storage requirement, and restriction badges.
     - _Requirements: 7.3, 9.3, 10.2_
 
