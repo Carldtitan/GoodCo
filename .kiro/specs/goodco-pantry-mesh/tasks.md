@@ -187,7 +187,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Configure restricted categories, admin approval requirement, TEFAP transfer disabled default, and paid transfer disabled default.
     - _Requirements: 9.1, 9.2, 9.3, 10.1, 10.3_
 
-  - [ ] 8.3 Build policy audit display
+  - [x] 8.3 Build policy audit display
     - Show policy decisions tied to listing and request records.
     - _Requirements: 9.5, 11.4_
 
