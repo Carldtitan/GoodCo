@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { MarketplaceAccessError, requireActivePantry, requireMarketplaceManager } from "@/lib/marketplace/access";
-import { isPublishableEligibleLot, mapEligibleLot } from "@/lib/marketplace/eligibility";
+import { mapEligibleLot } from "@/lib/marketplace/eligibility";
+import { listingGuardrailError } from "@/lib/marketplace/listing-guardrails";
 import { listingCreateSchema } from "@/lib/marketplace/listing-api";
 import { createRequestSupabaseClient } from "@/lib/supabase/request";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/server";
@@ -28,8 +29,9 @@ export async function POST(request: Request) {
     }
 
     const lot = mapEligibleLot(rawLot);
-    if (!isPublishableEligibleLot(lot) || parsed.data.quantity > lot.quantityAvailable) {
-      return NextResponse.json({ error: "This inventory lot is no longer eligible." }, { status: 409 });
+    const guardrailError = listingGuardrailError(lot, parsed.data);
+    if (guardrailError) {
+      return NextResponse.json({ error: guardrailError }, { status: 409 });
     }
 
     const serviceClient = createServiceRoleSupabaseClient();
