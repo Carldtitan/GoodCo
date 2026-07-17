@@ -11,7 +11,7 @@ export default function MarketplacePage() {
         </div>
         <Link
           className="inline-flex min-h-11 items-center gap-2 rounded-panel bg-accent px-3 text-sm font-semibold text-white transition hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-          href="/marketplace/listings"
+          href="/marketplace/listings/new"
         >
           Publish
           <ArrowUpRight aria-hidden="true" size={16} />
@@ -21,7 +21,7 @@ export default function MarketplacePage() {
       <div className="mt-6 border-y border-border py-12 text-center">
         <PackageSearch aria-hidden="true" className="mx-auto text-muted" size={24} strokeWidth={1.75} />
         <p className="mt-3 text-sm font-medium">No active listings</p>
-        <Link className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href="/marketplace/listings">
+        <Link className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href="/marketplace/listings/new">
           Publish from eligible inventory
         </Link>
       </div>

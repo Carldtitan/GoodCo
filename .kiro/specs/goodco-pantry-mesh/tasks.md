@@ -126,7 +126,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Add Marketplace, My Listings, My Requests, and Admin Console navigation.
     - _Requirements: 7.3, 8.1_
 
-  - [ ] 5.2 Build publish-listing flow from eligible lots
+  - [x] 5.2 Build publish-listing flow from eligible lots
     - Source listings only from the eligible-lot API.
     - Require quantity, pickup window, storage type, move-by date, and approval mode.
     - _Requirements: 1.2, 7.1, 7.2_
