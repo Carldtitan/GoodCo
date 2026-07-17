@@ -200,7 +200,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Source pantry confirms handoff; destination pantry confirms receipt.
     - _Requirements: 8.3, 8.4_
 
-  - [ ] 9.3 Connect transfer finalization to inventory API
+  - [x] 9.3 Connect transfer finalization to inventory API
     - Final transfer creates source and destination inventory movement records.
     - _Requirements: 1.3, 8.4, 9.5_
 
