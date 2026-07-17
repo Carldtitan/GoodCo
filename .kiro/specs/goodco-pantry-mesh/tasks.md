@@ -75,7 +75,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Use correction memory before Fireworks fallback.
     - _Requirements: 5.1, 5.2, 5.3_
 
-  - [ ] 3.4 Implement OCR and voice-assisted date capture
+  - [x] 3.4 Implement OCR and voice-assisted date capture
     - Use Tesseract.js for date OCR and browser speech input for spoken quantity/date details.
     - Store raw OCR text or voice transcript.
     - _Requirements: 5.4, 5.5, 5.6_
