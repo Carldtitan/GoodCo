@@ -204,7 +204,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Final transfer creates source and destination inventory movement records.
     - _Requirements: 1.3, 8.4, 9.5_
 
-  - [ ] 9.4 Implement cancelled request release
+  - [x] 9.4 Implement cancelled request release
     - Cancel request and release reserved quantity through inventory seam.
     - _Requirements: 8.5_
 
