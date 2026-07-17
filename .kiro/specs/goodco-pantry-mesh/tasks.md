@@ -196,7 +196,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Marketplace requests call the inventory seam instead of mutating lot quantities directly.
     - _Requirements: 1.3, 8.1_
 
-  - [ ] 9.2 Connect pickup and receipt confirmation
+  - [x] 9.2 Connect pickup and receipt confirmation
     - Source pantry confirms handoff; destination pantry confirms receipt.
     - _Requirements: 8.3, 8.4_
 
