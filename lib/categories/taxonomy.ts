@@ -6,6 +6,7 @@ import type {
 export type CategorySource =
   | "correction_memory"
   | "product_data"
+  | "llm_parse"
   | "rules"
   | "unknown";
 

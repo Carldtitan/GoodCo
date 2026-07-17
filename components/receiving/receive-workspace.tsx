@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { BrowserMultiFormatReader, type IScannerControls } from "@zxing/browser";
-import { Camera, Mic, Search, Square, Upload } from "lucide-react";
+import { Bot, Camera, Mic, Search, Square, Upload } from "lucide-react";
 import { createWorker } from "tesseract.js";
 import { parseDateDraft, type DateDraft } from "@/lib/dates/parse";
 import type { ProductLookupResult } from "@/lib/products/types";
@@ -169,6 +169,76 @@ export function ReceiveWorkspace() {
   }
 
   const isLoading = lookup.status === "loading" || isPending;
+  const canFallbackParse =
+    lookup.result?.found &&
+    (lookup.result.categorySource === "unknown" ||
+      dateDraft?.reviewStatus === "needs_review");
+
+  async function runFallbackParse() {
+    if (!lookup.result?.found) return;
+
+    try {
+      const response = await fetch("/api/receiving/fallback-parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          barcode: lookup.result.barcode,
+          productName: lookup.result.name,
+          brand: lookup.result.brand,
+          externalCategory: lookup.result.categoryText,
+          dateRawText: dateDraft?.rawText ?? null,
+        }),
+      });
+      const body = (await response.json()) as {
+        result?: {
+          category: ProductLookupResult["pantryCategory"];
+          subcategory: string | null;
+          storageType: ProductLookupResult["categoryStorageType"];
+          categoryConfidence: number;
+          date: {
+            normalizedDate: string | null;
+            labelType: DateDraft["labelType"];
+            confidence: number;
+            rawText: string | null;
+          } | null;
+        } | null;
+      };
+
+      if (!response.ok || !body.result) return;
+
+      setLookup((current) =>
+        current.result
+          ? {
+              status: "done",
+              error: null,
+              result: {
+                ...current.result,
+                pantryCategory: body.result!.category,
+                subcategory: body.result!.subcategory,
+                categoryStorageType: body.result!.storageType,
+                categoryConfidence: body.result!.categoryConfidence,
+                categorySource: "llm_parse",
+                categoryMatchedBy: null,
+              },
+            }
+          : current,
+      );
+
+      if (body.result.date) {
+        setDateDraft({
+          rawText: body.result.date.rawText ?? dateDraft?.rawText ?? "",
+          transcript: dateDraft?.transcript ?? null,
+          normalizedDate: body.result.date.normalizedDate,
+          labelType: body.result.date.labelType,
+          source: "llm_parse",
+          confidence: body.result.date.confidence,
+          reviewStatus: "draft_high_confidence",
+        });
+      }
+    } catch {
+      setDateError("Manual review needed.");
+    }
+  }
 
   return (
     <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -260,6 +330,16 @@ export function ReceiveWorkspace() {
                   ? "Listening"
                   : null}
             </span>
+            {canFallbackParse ? (
+              <button
+                type="button"
+                onClick={() => void runFallbackParse()}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-panel border border-border px-4 text-sm font-semibold transition hover:bg-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                <Bot aria-hidden="true" size={17} />
+                Parse
+              </button>
+            ) : null}
           </div>
 
           {dateDraft ? (

@@ -80,7 +80,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Store raw OCR text or voice transcript.
     - _Requirements: 5.4, 5.5, 5.6_
 
-  - [ ] 3.5 Implement Fireworks fallback parser
+  - [x] 3.5 Implement Fireworks fallback parser
     - Use Fireworks only for low-confidence category/date parsing.
     - Validate structured JSON against contract enums before showing a draft.
     - _Requirements: 6.1, 6.2, 6.3, 6.4_
