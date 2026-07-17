@@ -13,17 +13,10 @@ export async function GET() {
       .eq("pantry_id", activePantry.pantryId)
       .order("move_by", { ascending: true });
 
-    if (error) {
-      return NextResponse.json({ error: "Could not load eligible inventory." }, { status: 500 });
-    }
-
-    const lots = (data ?? []).map(mapEligibleLot).filter(isPublishableEligibleLot);
-    return NextResponse.json({ lots });
+    if (error) return NextResponse.json({ error: "Could not load eligible inventory." }, { status: 500 });
+    return NextResponse.json({ lots: (data ?? []).map(mapEligibleLot).filter(isPublishableEligibleLot) });
   } catch (error) {
-    if (error instanceof MarketplaceAccessError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-
+    if (error instanceof MarketplaceAccessError) return NextResponse.json({ error: error.message }, { status: error.status });
     return NextResponse.json({ error: "Could not load eligible inventory." }, { status: 500 });
   }
 }

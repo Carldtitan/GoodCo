@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { StorageType } from "@/contracts/goodco-pantry-mesh.types";
-import { createRequestSupabaseClient } from "@/lib/supabase/request";
+import { getPantryContext } from "@/lib/pantry/context";
 
 export type MarketplaceRole = "member" | "manager" | "network_admin";
 
@@ -24,56 +24,28 @@ export class MarketplaceAccessError extends Error {
 }
 
 export async function requireActivePantry(): Promise<ActivePantry> {
-  const supabase = await createRequestSupabaseClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const context = await getPantryContext();
+  if (!context.userId) {
     throw new MarketplaceAccessError("Sign in to use the marketplace.", 401);
   }
-
-  const { data, error } = await supabase
-    .from("pantry_memberships")
-    .select("role, pantries!inner(id, network_id, approved_status, storage_capabilities)")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
-
-  if (error || !data) {
+  const membership = context.memberships[0];
+  if (!membership || !context.activePantry) {
     throw new MarketplaceAccessError("Your account is not assigned to a pantry.");
   }
-
-  const membership = data as unknown as {
-    role: MarketplaceRole;
-    pantries: Array<{
-      id: string;
-      network_id: string | null;
-      approved_status: "pending" | "approved" | "suspended";
-      storage_capabilities: StorageType[];
-    }>;
-  };
-
-  const pantry = membership.pantries[0];
-
-  if (!pantry) {
-    throw new MarketplaceAccessError("Your account is not assigned to a pantry.");
-  }
-
-  if (pantry.approved_status !== "approved") {
+  const pantry = context.activePantry;
+  if (pantry.approvedStatus !== "approved") {
     throw new MarketplaceAccessError(
       "Your pantry needs approval before it can use the marketplace.",
     );
   }
 
   return {
-    userId: user.id,
+    userId: context.userId,
     pantryId: pantry.id,
-    networkId: pantry.network_id,
-    role: membership.role,
-    approvedStatus: pantry.approved_status,
-    storageCapabilities: pantry.storage_capabilities,
+    networkId: pantry.networkId,
+    role: membership.role as MarketplaceRole,
+    approvedStatus: pantry.approvedStatus,
+    storageCapabilities: pantry.storageCapabilities,
   };
 }
 
