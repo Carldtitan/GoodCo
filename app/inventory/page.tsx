@@ -1,9 +1,9 @@
 import { AppShell } from "@/components/app-shell";
 import { listInventoryLotsForPantry } from "@/lib/inventory/queries";
-import { getPantryContext } from "@/lib/pantry/context";
+import { requireSignedInPantryContext } from "@/lib/pantry/require-context";
 
 export default async function InventoryPage() {
-  const pantryContext = await getPantryContext();
+  const pantryContext = await requireSignedInPantryContext();
   const lots = pantryContext.activePantry
     ? await listInventoryLotsForPantry(pantryContext.activePantry.id)
     : [];

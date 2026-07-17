@@ -4,10 +4,10 @@ import {
   listClassificationAudit,
   listTransferAudit,
 } from "@/lib/audit/queries";
-import { getPantryContext } from "@/lib/pantry/context";
+import { requireSignedInPantryContext } from "@/lib/pantry/require-context";
 
 export default async function AuditPage() {
-  const pantryContext = await getPantryContext();
+  const pantryContext = await requireSignedInPantryContext();
   const [corrections, transfers] = await Promise.all([
     listClassificationAudit(),
     pantryContext.activePantry

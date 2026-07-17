@@ -1,10 +1,10 @@
 import { Download } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { EXPORT_DATASETS } from "@/lib/export/datasets";
-import { getPantryContext } from "@/lib/pantry/context";
+import { requireSignedInPantryContext } from "@/lib/pantry/require-context";
 
 export default async function ExportsPage() {
-  const pantryContext = await getPantryContext();
+  const pantryContext = await requireSignedInPantryContext();
 
   return (
     <AppShell pantryContext={pantryContext}>

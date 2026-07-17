@@ -4,11 +4,11 @@ import {
   STORAGE_TYPES,
 } from "@/contracts/goodco-pantry-mesh.constants";
 import { listClassificationReviewItems } from "@/lib/categories/review";
-import { getPantryContext } from "@/lib/pantry/context";
+import { requireSignedInPantryContext } from "@/lib/pantry/require-context";
 import { approveCategoryMapping } from "./actions";
 
 export default async function ReviewPage() {
-  const pantryContext = await getPantryContext();
+  const pantryContext = await requireSignedInPantryContext();
   const items = pantryContext.activePantry
     ? await listClassificationReviewItems()
     : [];
