@@ -1,42 +1,34 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createCookieSupabaseClient } from "@/lib/supabase/ssr";
 
 const signInSchema = z.object({
   email: z.string().email(),
+  password: z.string().min(1),
 });
 
-export async function signInWithEmail(formData: FormData) {
+export async function signInWithPassword(formData: FormData) {
   const parsed = signInSchema.safeParse({
     email: formData.get("email"),
+    password: formData.get("password"),
   });
 
   if (!parsed.success) {
-    redirect("/sign-in?error=invalid_email");
+    redirect("/sign-in?error=invalid_form");
   }
 
-  const headerStore = await headers();
-  const origin = headerStore.get("origin") ?? "http://localhost:3000";
   const supabase = await createCookieSupabaseClient();
 
-  const { error } = await supabase.auth.signInWithOtp({
+  const { error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
-    options: {
-      emailRedirectTo: `${origin}/auth/confirm`,
-      shouldCreateUser: true,
-    },
+    password: parsed.data.password,
   });
 
   if (error) {
-    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
-      redirect("/sign-in?error=rate_limit");
-    }
-
-    redirect("/sign-in?error=auth");
+    redirect("/sign-in?error=credentials");
   }
 
-  redirect("/sign-in?sent=1");
+  redirect("/");
 }
