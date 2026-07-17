@@ -6,7 +6,9 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 export function SignInForm() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "sent" | "rate_limit" | "error"
+  >("idle");
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,7 +21,13 @@ export function SignInForm() {
         shouldCreateUser: true,
       },
     });
-    setStatus(error ? "error" : "sent");
+    setStatus(
+      error?.status === 429 || error?.code === "over_email_send_rate_limit"
+        ? "rate_limit"
+        : error
+          ? "error"
+          : "sent",
+    );
   }
 
   return (
@@ -33,6 +41,7 @@ export function SignInForm() {
         {status === "loading" ? "Sending" : "Send link"}
       </button>
       {status === "sent" ? <p aria-live="polite" className="text-sm text-success">Check your email.</p> : null}
+      {status === "rate_limit" ? <p aria-live="polite" className="text-sm font-medium text-danger">Too many links sent. Try again shortly.</p> : null}
       {status === "error" ? <p aria-live="polite" className="text-sm font-medium text-danger">Could not send the sign-in link.</p> : null}
     </form>
   );

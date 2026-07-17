@@ -15,7 +15,7 @@ export async function signInWithEmail(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect("/sign-in?error=email");
+    redirect("/sign-in?error=invalid_email");
   }
 
   const headerStore = await headers();
@@ -31,7 +31,11 @@ export async function signInWithEmail(formData: FormData) {
   });
 
   if (error) {
-    redirect("/sign-in?error=email");
+    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
+      redirect("/sign-in?error=rate_limit");
+    }
+
+    redirect("/sign-in?error=auth");
   }
 
   redirect("/sign-in?sent=1");
