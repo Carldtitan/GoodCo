@@ -149,7 +149,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Validate organization approval status, requested quantity, listing status, and storage compatibility.
     - _Requirements: 8.1, 8.2_
 
-  - [ ] 6.2 Build approval states
+  - [x] 6.2 Build approval states
     - Support auto-approved, source-pantry approval, and admin approval modes.
     - _Requirements: 7.2, 8.2, 9.3_
 
