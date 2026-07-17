@@ -362,6 +362,12 @@ export function ReceiveWorkspace() {
     recognition.start();
   }
 
+  function stopVoiceIntake() {
+    speechRef.current?.stop();
+    speechRef.current = null;
+    setDateStatus("idle");
+  }
+
   const isLoading = lookup.status === "loading" || isPending;
   const canFallbackParse =
     lookup.result?.found &&
@@ -588,6 +594,16 @@ export function ReceiveWorkspace() {
               <Mic aria-hidden="true" size={17} />
               Voice
             </button>
+            {dateStatus === "listening" ? (
+              <button
+                type="button"
+                onClick={stopVoiceIntake}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-panel border border-border px-4 text-sm font-semibold transition hover:bg-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                <Square aria-hidden="true" size={17} />
+                Stop
+              </button>
+            ) : null}
             <span className="text-sm text-muted">
               {dateStatus === "reading"
                 ? "Reading"
