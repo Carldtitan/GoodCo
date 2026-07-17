@@ -13,6 +13,12 @@ export const reservationSchema = z.object({
 
 export type MarketplaceReservationInput = z.infer<typeof reservationSchema>;
 
+export const cancellationSchema = reservationSchema.extend({
+  reason: z.string().trim().max(500).optional(),
+});
+
+export type MarketplaceCancellationInput = z.infer<typeof cancellationSchema>;
+
 export function toReservationRpc(input: MarketplaceReservationInput, actorId: string) {
   return {
     p_listing_id: input.listingId,
@@ -21,5 +27,12 @@ export function toReservationRpc(input: MarketplaceReservationInput, actorId: st
     p_quantity: input.quantity,
     p_unit: input.unit as Unit,
     p_actor_id: actorId,
+  };
+}
+
+export function toCancellationRpc(input: MarketplaceCancellationInput, actorId: string) {
+  return {
+    ...toReservationRpc(input, actorId),
+    p_reason: input.reason ?? null,
   };
 }
