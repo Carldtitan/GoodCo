@@ -62,6 +62,9 @@ export function ReceiveWorkspace() {
     "idle" | "reading" | "listening" | "error"
   >("idle");
   const [dateError, setDateError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
   const [isPending, startTransition] = useTransition();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
@@ -209,6 +212,11 @@ export function ReceiveWorkspace() {
     lookup.result?.found &&
     (lookup.result.categorySource === "unknown" ||
       dateDraft?.reviewStatus === "needs_review");
+  const canSave =
+    reviewConfirmed &&
+    lookup.result?.found &&
+    draft.itemName.trim() &&
+    Number(draft.quantity) > 0;
 
   async function runFallbackParse() {
     if (!lookup.result?.found) return;
@@ -277,6 +285,61 @@ export function ReceiveWorkspace() {
       }
     } catch {
       setDateError("Manual review needed.");
+    }
+  }
+
+  async function saveReceivingDraft() {
+    if (!lookup.result?.found || !canSave) return;
+
+    setSaveStatus("saving");
+
+    try {
+      const response = await fetch("/api/inventory/receive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product: {
+            barcode: lookup.result.barcode || null,
+            name: lookup.result.name,
+            brand: lookup.result.brand,
+            packageSize: lookup.result.packageSize,
+            ingredients: lookup.result.ingredients,
+            allergens: lookup.result.allergens,
+            source: lookup.result.source ?? "manual",
+            openFoodFactsCategories: lookup.result.openFoodFactsCategories,
+            fdcFoodCategory: lookup.result.fdcFoodCategory,
+            suggestedCategory: lookup.result.pantryCategory,
+            categorySource: lookup.result.categorySource,
+            categoryConfidence: lookup.result.categoryConfidence,
+          },
+          lot: {
+            itemName: draft.itemName,
+            quantity: Number(draft.quantity),
+            unit: draft.unit,
+            category: draft.category,
+            subcategory: lookup.result.subcategory,
+            storageType: draft.storageType,
+            sourceType: draft.sourceType,
+            date: draft.date || null,
+            dateLabelType: dateDraft?.labelType ?? "unknown",
+            dateRawText: dateDraft?.rawText ?? null,
+            dateVoiceTranscript: dateDraft?.transcript ?? null,
+            dateSource: dateDraft?.source ?? (draft.date ? "manual" : null),
+            dateConfidence: dateDraft?.confidence ?? (draft.date ? 1 : null),
+            redistributionAllowed: draft.redistributionAllowed,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        setSaveStatus("error");
+        return;
+      }
+
+      setSaveStatus("saved");
+      setReviewConfirmed(false);
+    } catch {
+      setSaveStatus("error");
     }
   }
 
@@ -613,6 +676,22 @@ export function ReceiveWorkspace() {
 
             {reviewConfirmed ? (
               <p className="text-sm font-medium text-success">Ready</p>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={() => void saveReceivingDraft()}
+              disabled={!canSave || saveStatus === "saving"}
+              className="inline-flex h-11 items-center justify-center rounded-panel bg-accent px-4 text-sm font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {saveStatus === "saving" ? "Saving" : "Save lot"}
+            </button>
+
+            {saveStatus === "saved" ? (
+              <p className="text-sm font-medium text-success">Saved</p>
+            ) : null}
+            {saveStatus === "error" ? (
+              <p className="text-sm text-danger">Save failed.</p>
             ) : null}
           </div>
         </div>
