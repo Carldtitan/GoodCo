@@ -65,7 +65,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Add authenticated pantry context and receiving navigation.
     - _Requirements: 3.1, 4.1_
 
-  - [ ] 3.2 Implement barcode scan and product lookup
+  - [x] 3.2 Implement barcode scan and product lookup
     - Use `@zxing/browser` to scan UPC/GTIN.
     - Query Open Food Facts first and USDA FoodData Central second.
     - _Requirements: 4.1, 4.2_
