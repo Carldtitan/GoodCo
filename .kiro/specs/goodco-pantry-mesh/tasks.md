@@ -108,7 +108,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Create `marketplace_reserved` movement and reduce marketplace-available quantity without finalizing transfer.
     - _Requirements: 1.3, 7.5, 8.1_
 
-  - [ ] 4.3 Implement cancellation movement API
+  - [x] 4.3 Implement cancellation movement API
     - Create `marketplace_cancelled` movement and release reserved quantity.
     - _Requirements: 8.5_
 
