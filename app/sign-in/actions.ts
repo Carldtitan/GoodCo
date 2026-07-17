@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { ensureGoodCoAdminMembership } from "@/lib/auth/admin-bootstrap";
 import { createCookieSupabaseClient } from "@/lib/supabase/ssr";
 
 const signInSchema = z.object({
@@ -21,7 +22,7 @@ export async function signInWithPassword(formData: FormData) {
 
   const supabase = await createCookieSupabaseClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
     password: parsed.data.password,
   });
@@ -29,6 +30,8 @@ export async function signInWithPassword(formData: FormData) {
   if (error) {
     redirect("/sign-in?error=credentials");
   }
+
+  await ensureGoodCoAdminMembership(data.user?.id, data.user?.email);
 
   redirect("/");
 }

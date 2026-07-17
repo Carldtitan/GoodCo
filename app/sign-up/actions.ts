@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { ensureGoodCoAdminMembership } from "@/lib/auth/admin-bootstrap";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/server";
 import { createCookieSupabaseClient } from "@/lib/supabase/ssr";
 
@@ -44,11 +45,13 @@ export async function signUpWithPassword(formData: FormData) {
   }
 
   const service = createServiceRoleSupabaseClient();
-  const { error: createError } = await service.auth.admin.createUser({
+  const { data: createData, error: createError } =
+    await service.auth.admin.createUser({
     email: parsed.data.email,
     password: parsed.data.password,
     email_confirm: true,
   });
+  let userId = createData.user?.id ?? null;
 
   if (createError) {
     const existingUserId = await findAuthUserIdByEmail(parsed.data.email);
@@ -56,6 +59,8 @@ export async function signUpWithPassword(formData: FormData) {
     if (!existingUserId) {
       redirect("/sign-up?error=create");
     }
+
+    userId = existingUserId;
 
     const { error: updateError } = await service.auth.admin.updateUserById(
       existingUserId,
@@ -69,6 +74,8 @@ export async function signUpWithPassword(formData: FormData) {
       redirect("/sign-up?error=create");
     }
   }
+
+  await ensureGoodCoAdminMembership(userId, parsed.data.email);
 
   const supabase = await createCookieSupabaseClient();
   const { error: signInError } = await supabase.auth.signInWithPassword({
