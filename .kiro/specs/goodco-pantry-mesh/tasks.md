@@ -46,7 +46,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 2.1, 2.2, 2.4, 2.5_
 
 - [ ] 2. Set up the application shell and Supabase wiring (Owner: Person A)
-  - [ ] 2.1 Initialize the Next.js app structure
+  - [x] 2.1 Initialize the Next.js app structure
     - Create the Next.js App Router layout, TypeScript config, Tailwind config, and base directories: `app/`, `components/`, `lib/`, `contracts/`, and `supabase/`.
     - _Requirements: 1.1_
 
