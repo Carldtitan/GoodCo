@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
+import type { EmailOtpType } from "@supabase/supabase-js";
 import { createCookieSupabaseClient } from "@/lib/supabase/ssr";
+
+const emailOtpTypes = new Set([
+  "signup",
+  "invite",
+  "magiclink",
+  "recovery",
+  "email_change",
+  "email",
+]);
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -13,13 +23,17 @@ export async function GET(request: Request) {
     if (!error) return NextResponse.redirect(new URL("/", url.origin));
   }
 
-  if (tokenHash && type) {
+  if (tokenHash && type && emailOtpTypes.has(type)) {
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
-      type: type as "email",
+      type: type as EmailOtpType,
     });
     if (!error) return NextResponse.redirect(new URL("/", url.origin));
   }
 
-  return NextResponse.redirect(new URL("/sign-in?error=email", url.origin));
+  if (!code && !tokenHash) {
+    return NextResponse.redirect(new URL("/auth/session", url.origin));
+  }
+
+  return NextResponse.redirect(new URL("/sign-in?error=link", url.origin));
 }
