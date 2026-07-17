@@ -6,6 +6,7 @@ import type { MarketplaceEligibleLot } from "@/contracts/goodco-pantry-mesh.type
 
 type PublishListingFormProps = {
   lots: MarketplaceEligibleLot[];
+  initialLotId?: string;
 };
 
 function toLocalInputValue(date: Date) {
@@ -13,9 +14,13 @@ function toLocalInputValue(date: Date) {
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
 
-export function PublishListingForm({ lots }: PublishListingFormProps) {
+export function PublishListingForm({ lots, initialLotId }: PublishListingFormProps) {
   const router = useRouter();
-  const [lotId, setLotId] = useState(lots[0]?.lotId ?? "");
+  const [lotId, setLotId] = useState(
+    lots.some((lot) => lot.lotId === initialLotId)
+      ? initialLotId!
+      : lots[0]?.lotId ?? "",
+  );
   const [quantity, setQuantity] = useState("");
   const [pickupStart, setPickupStart] = useState(() => toLocalInputValue(new Date()));
   const [pickupEnd, setPickupEnd] = useState(() => toLocalInputValue(new Date(Date.now() + 60 * 60 * 1000)));

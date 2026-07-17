@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { listInventoryLotsForPantry } from "@/lib/inventory/queries";
 import { requireSignedInPantryContext } from "@/lib/pantry/require-context";
@@ -47,16 +48,18 @@ export default async function InventoryPage() {
                       <td className="px-4 py-3">{date}</td>
                       <td className="px-4 py-3">{lot.reviewStatus}</td>
                       <td className="px-4 py-3">
-                        <span
-                          className={[
-                            "rounded-panel px-2 py-1 text-xs font-medium",
-                            lot.marketplaceEligible
-                              ? "bg-accent/10 text-accent"
-                              : "bg-background text-muted",
-                          ].join(" ")}
-                        >
-                          {lot.marketplaceEligible ? "Eligible" : "No"}
-                        </span>
+                        {lot.marketplaceEligible ? (
+                          <Link
+                            className="inline-flex min-h-9 items-center rounded-panel bg-accent px-3 text-xs font-semibold text-white transition hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                            href={`/marketplace/listings/new?lotId=${lot.id}`}
+                          >
+                            Publish
+                          </Link>
+                        ) : (
+                          <span className="rounded-panel bg-background px-2 py-1 text-xs font-medium text-muted">
+                            No
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );

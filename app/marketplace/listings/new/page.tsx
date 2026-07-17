@@ -4,8 +4,13 @@ import { MarketplaceAccessError, requireActivePantry, requireMarketplaceManager 
 import { isPublishableEligibleLot, mapEligibleLot } from "@/lib/marketplace/eligibility";
 import { createRequestSupabaseClient } from "@/lib/supabase/request";
 
-export default async function NewMarketplaceListingPage() {
+export default async function NewMarketplaceListingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lotId?: string }>;
+}) {
   try {
+    const params = await searchParams;
     const activePantry = await requireActivePantry();
     requireMarketplaceManager(activePantry);
     const supabase = await createRequestSupabaseClient();
@@ -21,7 +26,7 @@ export default async function NewMarketplaceListingPage() {
     return (
       <section className="py-5">
         <h1 className="text-xl font-semibold tracking-tight">Publish listing</h1>
-        <PublishListingForm lots={lots} />
+        <PublishListingForm initialLotId={params.lotId} lots={lots} />
       </section>
     );
   } catch (error) {
