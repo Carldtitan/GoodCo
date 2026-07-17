@@ -153,7 +153,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Support auto-approved, source-pantry approval, and admin approval modes.
     - _Requirements: 7.2, 8.2, 9.3_
 
-  - [ ] 6.3 Build My Listings
+  - [x] 6.3 Build My Listings
     - Show active, reserved, pending approval, fulfilled, expired, and cancelled listings.
     - _Requirements: 7.4, 8.2_
 
