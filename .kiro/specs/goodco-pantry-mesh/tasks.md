@@ -174,7 +174,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Show lots by move-by urgency and storage type.
     - _Requirements: 5.6_
 
-  - [ ] 7.3 Build correction-memory review
+  - [x] 7.3 Build correction-memory review
     - Show unknown/low-confidence classification events and allow approved category mappings.
     - _Requirements: 5.2, 5.3_
 
