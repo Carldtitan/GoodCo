@@ -144,7 +144,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 1.2, 2.1, 7.1_
 
 - [ ] 6. Build request, approval, and marketplace status UI (Owner: Person B)
-  - [ ] 6.1 Build request/claim drawer
+  - [x] 6.1 Build request/claim drawer
     - Request quantity and pickup time from an active listing.
     - Validate organization approval status, requested quantity, listing status, and storage compatibility.
     - _Requirements: 8.1, 8.2_
