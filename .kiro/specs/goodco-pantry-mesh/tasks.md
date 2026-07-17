@@ -55,7 +55,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Add startup validation that fails clearly when required env vars are missing.
     - _Requirements: 1.1, 11.1_
 
-  - [ ] 2.3 Apply schema migration from the shared contract
+  - [x] 2.3 Apply schema migration from the shared contract
     - Convert or copy the contract SQL into Supabase migrations.
     - Do not prepopulate marketplace inventory.
     - _Requirements: 1.1, 2.1, 2.2_
