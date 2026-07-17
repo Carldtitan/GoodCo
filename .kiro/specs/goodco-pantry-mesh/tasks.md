@@ -61,40 +61,40 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 1.1, 2.1, 2.2_
 
 - [ ] 3. Implement inventory receiving and categorization (Owner: Person A)
-  - [ ] 3.1 Build pantry context and receiving shell
+  - [x] 3.1 Build pantry context and receiving shell
     - Add authenticated pantry context and receiving navigation.
     - _Requirements: 3.1, 4.1_
 
-  - [ ] 3.2 Implement barcode scan and product lookup
+  - [x] 3.2 Implement barcode scan and product lookup
     - Use `@zxing/browser` to scan UPC/GTIN.
     - Query Open Food Facts first and USDA FoodData Central second.
     - _Requirements: 4.1, 4.2_
 
-  - [ ] 3.3 Implement pantry category mapping
+  - [x] 3.3 Implement pantry category mapping
     - Map standard product categories into the pantry operations taxonomy.
     - Use correction memory before Fireworks fallback.
     - _Requirements: 5.1, 5.2, 5.3_
 
-  - [ ] 3.4 Implement OCR and voice-assisted date capture
+  - [x] 3.4 Implement OCR and voice-assisted date capture
     - Use Tesseract.js for date OCR and browser speech input for spoken quantity/date details.
     - Store raw OCR text or voice transcript.
     - _Requirements: 5.4, 5.5, 5.6_
 
-  - [ ] 3.5 Implement Fireworks fallback parser
+  - [x] 3.5 Implement Fireworks fallback parser
     - Use Fireworks only for low-confidence category/date parsing.
     - Validate structured JSON against contract enums before showing a draft.
     - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-  - [ ] 3.6 Build review-before-save flow
+  - [x] 3.6 Build review-before-save flow
     - Show draft item, quantity, unit, date, storage, category, confidence, and source trail.
     - Require human confirmation before saving.
     - _Requirements: 4.4, 4.5, 5.5_
 
-  - [ ] 3.7 Save inventory lots and receiving movements
+  - [x] 3.7 Save inventory lots and receiving movements
     - Persist product, lot, classification event, extraction job, and initial receiving movement.
     - _Requirements: 4.5, 11.3_
 
-  - [ ]* 3.8 Add tests for category mapping and date parsing
+  - [x]* 3.8 Add tests for category mapping and date parsing
     - Assert correction memory beats LLM fallback.
     - Assert date drafts require review.
     - _Requirements: 5.2, 5.3, 5.5, 6.1_
@@ -166,15 +166,15 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 8.1, 8.2_
 
 - [ ] 7. Build inventory management screens (Owner: Person A)
-  - [ ] 7.1 Build inventory list
+  - [x] 7.1 Build inventory list
     - Show pantry lots with category, quantity, storage, date status, review status, and marketplace eligibility.
     - _Requirements: 4.5, 7.1_
 
-  - [ ] 7.2 Build expiring-soon view
+  - [x] 7.2 Build expiring-soon view
     - Show lots by move-by urgency and storage type.
     - _Requirements: 5.6_
 
-  - [ ] 7.3 Build correction-memory review
+  - [x] 7.3 Build correction-memory review
     - Show unknown/low-confidence classification events and allow approved category mappings.
     - _Requirements: 5.2, 5.3_
 
@@ -213,15 +213,15 @@ Tasks are split for two people working in parallel after the shared contract is 
   - _Requirements: 2.1, 7.1, 8.4, 11.4_
 
 - [ ] 11. Reporting, export, and operational validation (Owner: Person A)
-  - [ ] 11.1 Add CSV exports
+  - [x] 11.1 Add CSV exports
     - Export products, lots, movements, listings, requests, transfers, classification events, and policy records.
     - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-  - [ ] 11.2 Add audit trail views
+  - [x] 11.2 Add audit trail views
     - Show classification corrections and transfer traceability from source lot to destination lot.
     - _Requirements: 5.2, 9.5, 11.3_
 
-  - [ ]* 11.3 Add no-synthetic-marketplace validation test
+  - [x]* 11.3 Add no-synthetic-marketplace validation test
     - Assert the marketplace renders empty until a confirmed inventory lot is listed.
     - _Requirements: 2.1, 2.2_
 
@@ -230,7 +230,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Confirm tests pass for category mapping, date parsing, eligibility rules, reservation/finalization, RLS, and real-data constraints.
     - _Requirements: 1, 2, 5, 8, 9, 10_
 
-  - [ ] 12.2 Review env and README handoff
+  - [x] 12.2 Review env and README handoff
     - Ensure `.env.example` contains only required variables and no real secrets.
     - Document setup without adding optional model/provider clutter.
     - _Requirements: 11.1_
