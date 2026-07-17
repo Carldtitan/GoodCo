@@ -70,7 +70,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Query Open Food Facts first and USDA FoodData Central second.
     - _Requirements: 4.1, 4.2_
 
-  - [ ] 3.3 Implement pantry category mapping
+  - [x] 3.3 Implement pantry category mapping
     - Map standard product categories into the pantry operations taxonomy.
     - Use correction memory before Fireworks fallback.
     - _Requirements: 5.1, 5.2, 5.3_

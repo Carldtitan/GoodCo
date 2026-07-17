@@ -3,6 +3,7 @@ import type { StorageType } from "@/contracts/goodco-pantry-mesh.types";
 
 export type PantrySummary = {
   id: string;
+  networkId: string | null;
   name: string;
   county: string;
   approvedStatus: "pending" | "approved" | "suspended";
@@ -25,6 +26,7 @@ type MembershipRow = {
   role: PantryMembership["role"];
   pantries: {
     id: string;
+    network_id: string | null;
     name: string;
     county: string;
     approved_status: PantrySummary["approvedStatus"];
@@ -50,7 +52,7 @@ export async function getPantryContext(): Promise<PantryContext> {
   const { data } = await supabase
     .from("pantry_memberships")
     .select(
-      "role, pantries(id, name, county, approved_status, storage_capabilities)",
+      "role, pantries(id, network_id, name, county, approved_status, storage_capabilities)",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true })
@@ -63,6 +65,7 @@ export async function getPantryContext(): Promise<PantryContext> {
         role: row.role,
         pantry: {
           id: row.pantries!.id,
+          networkId: row.pantries!.network_id,
           name: row.pantries!.name,
           county: row.pantries!.county,
           approvedStatus: row.pantries!.approved_status,
