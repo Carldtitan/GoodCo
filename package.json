@@ -10,6 +10,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.87.1",
     "@zxing/browser": "^0.1.5",
     "lucide-react": "^0.468.0",
