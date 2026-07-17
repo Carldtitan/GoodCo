@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GoodCo Pitch Deck</title>
+    <style>
+      :root {
+        --ink: #102326;
+        --muted: #5c6f72;
+        --paper: #f6faf8;
+        --card: #ffffff;
+        --line: #cfddd9;
+        --teal: #008b7a;
+        --teal-dark: #005f57;
+        --blue: #22608f;
+        --gold: #f3b23c;
+        --red: #b5474e;
+        --dark: #0b272a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #d9e3e0;
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      .deck {
+        display: grid;
+        gap: 28px;
+        padding: 28px;
+      }
+
+      .slide {
+        position: relative;
+        width: min(100%, 1600px);
+        aspect-ratio: 16 / 9;
+        margin: 0 auto;
+        overflow: hidden;
+        background: var(--paper);
+        border: 1px solid #b8c8c4;
+        box-shadow: 0 18px 55px rgb(10 36 38 / 0.18);
+      }
+
+      .slide.dark {
+        background: var(--dark);
+        color: white;
+      }
+
+      .inner {
+        position: absolute;
+        inset: 64px 78px 54px;
+      }
+
+      .label {
+        display: inline-flex;
+        min-width: 142px;
+        height: 42px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #e2f1ed;
+        color: var(--teal-dark);
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        box-shadow: 0 3px 8px rgb(0 0 0 / 0.12);
+      }
+
+      .dark .label {
+        background: white;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 900px;
+        margin-top: 54px;
+        font-size: 70px;
+        line-height: 0.98;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        max-width: 1240px;
+        margin-top: 48px;
+        font-size: 56px;
+        line-height: 1.02;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      .subhead {
+        max-width: 1080px;
+        margin-top: 26px;
+        color: var(--muted);
+        font-size: 30px;
+        line-height: 1.24;
+        font-weight: 500;
+      }
+
+      .dark .subhead {
+        color: #d7e7e5;
+      }
+
+      .strong-line {
+        position: absolute;
+        left: 0;
+        bottom: 96px;
+        max-width: 880px;
+        font-size: 34px;
+        line-height: 1.18;
+        font-weight: 850;
+      }
+
+      .hero-copy {
+        max-width: 720px;
+      }
+
+      .footer,
+      .page {
+        position: absolute;
+        bottom: 28px;
+        color: #6f8487;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+
+      .footer {
+        left: 78px;
+        max-width: 1080px;
+      }
+
+      .page {
+        right: 78px;
+      }
+
+      .dark .footer,
+      .dark .page {
+        color: #8ca3a6;
+      }
+
+      .mesh {
+        position: absolute;
+        right: 58px;
+        top: 104px;
+        width: 560px;
+        height: 520px;
+      }
+
+      .mesh svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+
+      .metrics {
+        position: absolute;
+        left: 0;
+        bottom: 182px;
+        display: grid;
+        width: 760px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+
+      .metric,
+      .card,
+      .matrix-cell,
+      .flow-step {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--card);
+        box-shadow: 0 5px 10px rgb(15 35 38 / 0.15);
+      }
+
+      .metric {
+        min-height: 120px;
+        padding: 22px 24px;
+      }
+
+      .metric .number {
+        color: var(--gold);
+        font-size: 43px;
+        line-height: 0.95;
+        font-weight: 850;
+      }
+
+      .metric .caption {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.22;
+        font-weight: 600;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 44px;
+        margin-top: 44px;
+      }
+
+      .three-col {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 26px;
+        margin-top: 44px;
+      }
+
+      .card {
+        min-height: 220px;
+        padding: 30px 32px;
+      }
+
+      .card h3,
+      .matrix-cell h3 {
+        color: var(--teal);
+        font-size: 27px;
+        line-height: 1.08;
+        font-weight: 850;
+      }
+
+      .card.danger h3 {
+        color: var(--red);
+      }
+
+      .card.blue h3 {
+        color: var(--blue);
+      }
+
+      .card p,
+      .matrix-cell p,
+      .flow-step p {
+        margin-top: 18px;
+        color: var(--ink);
+        font-size: 27px;
+        line-height: 1.22;
+        font-weight: 560;
+      }
+
+      .callout {
+        position: absolute;
+        left: 78px;
+        right: 78px;
+        bottom: 82px;
+        border-left: 10px solid var(--teal);
+        padding: 12px 0 12px 26px;
+        color: var(--ink);
+        font-size: 29px;
+        line-height: 1.18;
+        font-weight: 850;
+      }
+
+      .gap-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.05fr;
+        gap: 38px;
+        margin-top: 28px;
+      }
+
+      .matrix {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .matrix-cell {
+        min-height: 104px;
+        padding: 18px 24px;
+      }
+
+      .matrix-cell p {
+        margin-top: 10px;
+        font-size: 20px;
+      }
+
+      .missing {
+        display: grid;
+        align-content: center;
+        min-height: 340px;
+        border: 2px solid var(--teal);
+        border-radius: 20px;
+        background: #eaf6f2;
+        padding: 30px 38px;
+      }
+
+      .missing h3 {
+        color: var(--teal-dark);
+        font-size: 32px;
+        line-height: 1.08;
+      }
+
+      .missing ul {
+        margin: 22px 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 14px;
+      }
+
+      .missing li {
+        color: var(--ink);
+        font-size: 25px;
+        line-height: 1.18;
+        font-weight: 700;
+      }
+
+      .flow {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 18px;
+        margin-top: 48px;
+      }
+
+      .flow::before {
+        content: "";
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 50%;
+        height: 6px;
+        transform: translateY(-50%);
+        background: var(--teal);
+      }
+
+      .flow-step {
+        position: relative;
+        min-height: 176px;
+        padding: 26px 24px;
+      }
+
+      .flow-step .num {
+        display: inline-grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 50%;
+        background: #e0f0ec;
+        color: var(--teal-dark);
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      .flow-step h3 {
+        margin-top: 20px;
+        color: var(--ink);
+        font-size: 28px;
+        line-height: 1.02;
+      }
+
+      .flow-step p {
+        margin-top: 12px;
+        font-size: 21px;
+        color: var(--muted);
+      }
+
+      .rule-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 24px;
+        margin-top: 42px;
+      }
+
+      .rule {
+        border-radius: 14px;
+        background: #0f3335;
+        padding: 22px 24px;
+        color: white;
+      }
+
+      .rule b {
+        display: block;
+        color: #8be1d3;
+        font-size: 22px;
+      }
+
+      .rule span {
+        display: block;
+        margin-top: 10px;
+        color: #d6e7e5;
+        font-size: 21px;
+        line-height: 1.22;
+      }
+
+      .cost-layout {
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 42px;
+        margin-top: 40px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .stack-row {
+        display: grid;
+        grid-template-columns: 230px 1fr;
+        align-items: center;
+        min-height: 82px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid var(--line);
+        box-shadow: 0 4px 9px rgb(15 35 38 / 0.12);
+        overflow: hidden;
+      }
+
+      .stack-row b {
+        height: 100%;
+        display: grid;
+        place-items: center;
+        background: #e4f3ef;
+        color: var(--teal-dark);
+        font-size: 21px;
+      }
+
+      .stack-row span {
+        padding: 0 22px;
+        color: var(--ink);
+        font-size: 24px;
+        line-height: 1.18;
+        font-weight: 650;
+      }
+
+      .impact-box {
+        min-height: 384px;
+        border-radius: 20px;
+        background: var(--dark);
+        color: white;
+        padding: 36px 38px;
+      }
+
+      .impact-box h3 {
+        color: #8be1d3;
+        font-size: 32px;
+      }
+
+      .impact-box ul {
+        margin: 28px 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 18px;
+      }
+
+      .impact-box li {
+        color: #ecf7f5;
+        font-size: 28px;
+        line-height: 1.18;
+        font-weight: 750;
+      }
+
+      .controls {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 10;
+        display: flex;
+        gap: 10px;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .controls:hover,
+      .controls:focus-within {
+        opacity: 1;
+      }
+
+      .controls button {
+        border: 1px solid #b7c8c4;
+        border-radius: 999px;
+        background: white;
+        color: var(--ink);
+        padding: 10px 14px;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 6px 16px rgb(0 0 0 / 0.15);
+      }
+
+      @media (max-width: 900px) {
+        .deck {
+          padding: 10px;
+        }
+
+        .slide {
+          width: 100%;
+        }
+      }
+
+      @media print {
+        @page {
+          size: 16in 9in;
+          margin: 0;
+        }
+
+        body {
+          background: white;
+        }
+
+        .deck {
+          display: block;
+          padding: 0;
+        }
+
+        .slide {
+          width: 100vw;
+          height: 100vh;
+          margin: 0;
+          border: 0;
+          box-shadow: none;
+          page-break-after: always;
+        }
+
+        .controls {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slide dark" id="slide-1">
+        <div class="inner">
+          <div class="label">GoodCo</div>
+          <h1>One marketplace for every pantry spoke.</h1>
+          <p class="subhead hero-copy">
+            Food banks stay the hub. GoodCo gives approved pantries one shared
+            place to see and move eligible surplus across the network.
+          </p>
+
+          <div class="metrics" aria-label="network scale">
+            <div class="metric">
+              <div class="number">60k</div>
+              <div class="caption">meal programs in Feeding America network</div>
+            </div>
+            <div class="metric">
+              <div class="number">350+</div>
+              <div class="caption">ACCFB Alameda partner agencies</div>
+            </div>
+            <div class="metric">
+              <div class="number">900+</div>
+              <div class="caption">Second Harvest SV distribution sites</div>
+            </div>
+          </div>
+
+          <div class="strong-line">
+            The goal is not to replace the hub. It is to let the spokes help each other.
+          </div>
+
+          <div class="mesh" aria-hidden="true">
+            <svg viewBox="0 0 560 520" role="img">
+              <defs>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="5" flood-opacity="0.35" />
+                </filter>
+              </defs>
+              <line x1="280" y1="112" x2="128" y2="258" stroke="#66888c" stroke-width="2" />
+              <line x1="280" y1="112" x2="426" y2="258" stroke="#66888c" stroke-width="2" />
+              <line x1="280" y1="112" x2="154" y2="420" stroke="#66888c" stroke-width="2" />
+              <line x1="280" y1="112" x2="440" y2="414" stroke="#66888c" stroke-width="2" />
+              <line x1="128" y1="258" x2="426" y2="258" stroke="#f3b23c" stroke-width="6" />
+              <line x1="128" y1="258" x2="154" y2="420" stroke="#f3b23c" stroke-width="6" />
+              <line x1="154" y1="420" x2="440" y2="414" stroke="#f3b23c" stroke-width="6" />
+              <circle cx="280" cy="112" r="72" fill="#008b7a" filter="url(#shadow)" />
+              <text x="280" y="124" text-anchor="middle" fill="white" font-size="27" font-weight="800">Hub</text>
+              <circle cx="128" cy="258" r="54" fill="white" filter="url(#shadow)" />
+              <circle cx="426" cy="258" r="54" fill="white" filter="url(#shadow)" />
+              <circle cx="154" cy="420" r="54" fill="white" filter="url(#shadow)" />
+              <circle cx="440" cy="414" r="54" fill="white" filter="url(#shadow)" />
+              <text x="128" y="268" text-anchor="middle" fill="#102326" font-size="20" font-weight="800">SF</text>
+              <text x="426" y="268" text-anchor="middle" fill="#102326" font-size="20" font-weight="800">Oak</text>
+              <text x="154" y="430" text-anchor="middle" fill="#102326" font-size="20" font-weight="800">Marin</text>
+              <text x="440" y="424" text-anchor="middle" fill="#102326" font-size="20" font-weight="800">SJ</text>
+            </svg>
+          </div>
+        </div>
+        <div class="footer">
+          Sources: Feeding America, Alameda County Community Food Bank, Second Harvest of Silicon Valley.
+        </div>
+        <div class="page">01 / 05</div>
+      </section>
+
+      <section class="slide" id="slide-2">
+        <div class="inner">
+          <div class="label">Problem</div>
+          <h2>Surplus and shortage can exist in the same network.</h2>
+          <p class="subhead">
+            The hub may know the big picture, but individual pantries usually do
+            not have a shared live view of each other’s eligible inventory.
+          </p>
+
+          <div class="three-col">
+            <div class="card danger">
+              <h3>One pantry has too much</h3>
+              <p>Short-dated produce, rescued food, or extra cases can sit locally.</p>
+            </div>
+            <div class="card blue">
+              <h3>Another pantry has need</h3>
+              <p>Nearby demand may be invisible unless someone calls, texts, or asks the hub.</p>
+            </div>
+            <div class="card">
+              <h3>Time is the enemy</h3>
+              <p>Perishable food loses value while people coordinate manually.</p>
+            </div>
+          </div>
+
+          <div class="callout">
+            Problem addressed: match eligible surplus to shortage before food ages out.
+          </div>
+        </div>
+        <div class="footer">
+          Context: U.S. food waste is estimated at 30-40% of the food supply; food-bank networks operate at large node counts.
+        </div>
+        <div class="page">02 / 05</div>
+      </section>
+
+      <section class="slide" id="slide-3">
+        <div class="inner">
+          <div class="label">Gap Analysis</div>
+          <h2>The missing layer is governed lateral movement.</h2>
+          <p class="subhead">
+            Existing workflows cover donations, hub ordering, and local records.
+            They do not create one inventory-backed marketplace for the spokes.
+          </p>
+
+          <div class="gap-grid">
+            <div class="matrix">
+              <div class="matrix-cell">
+                <h3>Food-bank ordering</h3>
+                <p>Good for hub-to-agency allocation. Not designed as a shared pantry-to-pantry market.</p>
+              </div>
+              <div class="matrix-cell">
+                <h3>Local inventory sheets</h3>
+                <p>Useful inside one pantry. Weak for network visibility, reservations, and transfer audit.</p>
+              </div>
+              <div class="matrix-cell">
+                <h3>Food rescue dispatch</h3>
+                <p>Strong for donor pickup. Different problem from moving already-inventoried pantry surplus.</p>
+              </div>
+            </div>
+
+            <div class="missing">
+              <h3>What GoodCo adds</h3>
+              <ul>
+                <li>Inventory-backed listings</li>
+                <li>Quantity reservation before pickup</li>
+                <li>Policy guardrails for restricted food</li>
+                <li>Audit trail for handoff and receipt</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          Interpretation: this is a product gap analysis, not a claim that existing food-bank systems are bad.
+        </div>
+        <div class="page">03 / 05</div>
+      </section>
+
+      <section class="slide dark" id="slide-4">
+        <div class="inner">
+          <div class="label">Product</div>
+          <h2>Verified inventory becomes a shared market.</h2>
+          <p class="subhead">
+            A pantry can only publish what it has already reviewed and confirmed.
+            That keeps the marketplace useful instead of becoming a fake catalog.
+          </p>
+
+          <div class="flow">
+            <div class="flow-step">
+              <span class="num">1</span>
+              <h3>Receive</h3>
+              <p>Barcode, manual, photo, or voice.</p>
+            </div>
+            <div class="flow-step">
+              <span class="num">2</span>
+              <h3>Review</h3>
+              <p>Human confirms quantity, category, and date.</p>
+            </div>
+            <div class="flow-step">
+              <span class="num">3</span>
+              <h3>Publish</h3>
+              <p>Only eligible surplus enters the market.</p>
+            </div>
+            <div class="flow-step">
+              <span class="num">4</span>
+              <h3>Reserve</h3>
+              <p>Claimed quantity is held for pickup.</p>
+            </div>
+            <div class="flow-step">
+              <span class="num">5</span>
+              <h3>Transfer</h3>
+              <p>Handoff and receipt leave a record.</p>
+            </div>
+          </div>
+
+          <div class="rule-strip">
+            <div class="rule">
+              <b>One marketplace</b>
+              <span>Every approved spoke sees the same eligible listings.</span>
+            </div>
+            <div class="rule">
+              <b>Inventory-backed</b>
+              <span>Publishing does not reduce stock. Reservation does.</span>
+            </div>
+            <div class="rule">
+              <b>Governed</b>
+              <span>No payments in MVP. Restricted food can be blocked by policy.</span>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          Product boundary: GoodCo supports the hub-and-spoke model by adding lateral flow, not by replacing food-bank allocation.
+        </div>
+        <div class="page">04 / 05</div>
+      </section>
+
+      <section class="slide" id="slide-5">
+        <div class="inner">
+          <div class="label">Implementation</div>
+          <h2>Built to be cheap enough to run.</h2>
+          <p class="subhead">
+            The product uses free data and browser-native capture first. AI is a
+            structured fallback, not an always-on vision pipeline.
+          </p>
+
+          <div class="cost-layout">
+            <div class="stack">
+              <div class="stack-row">
+                <b>Lookup first</b>
+                <span>Open Food Facts and USDA FoodData Central before LLM parsing.</span>
+              </div>
+              <div class="stack-row">
+                <b>No-barcode intake</b>
+                <span>Browser speech-to-text turns staff descriptions into a draft Review form.</span>
+              </div>
+              <div class="stack-row">
+                <b>Light AI use</b>
+                <span>LLM fills structured fields only after barcode/data rules are insufficient.</span>
+              </div>
+              <div class="stack-row">
+                <b>Open tools</b>
+                <span>Tesseract OCR, ZXing barcode scanning, Supabase/Postgres audit records.</span>
+              </div>
+            </div>
+
+            <div class="impact-box">
+              <h3>Pilot impact metrics</h3>
+              <ul>
+                <li>Lots moved before expiry</li>
+                <li>Requests fulfilled from nearby pantries</li>
+                <li>Expired inventory avoided</li>
+                <li>Hub interventions avoided</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          Evidence base: lateral transshipment research finds inventory sharing can reduce cost or improve service; GoodCo still needs a pantry pilot to measure its own effect.
+        </div>
+        <div class="page">05 / 05</div>
+      </section>
+    </main>
+
+    <div class="controls" aria-label="slide controls">
+      <button type="button" id="prev">Prev</button>
+      <button type="button" id="next">Next</button>
+      <button type="button" id="print">Print</button>
+    </div>
+
+    <script>
+      const slides = [...document.querySelectorAll(".slide")];
+      let index = 0;
+
+      function show(nextIndex) {
+        index = Math.max(0, Math.min(slides.length - 1, nextIndex));
+        slides[index].scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      document.getElementById("prev").addEventListener("click", () => show(index - 1));
+      document.getElementById("next").addEventListener("click", () => show(index + 1));
+      document.getElementById("print").addEventListener("click", () => window.print());
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "PageDown") show(index + 1);
+        if (event.key === "ArrowLeft" || event.key === "PageUp") show(index - 1);
+      });
+    </script>
+  </body>
+</html>
