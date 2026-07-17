@@ -166,7 +166,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 8.1, 8.2_
 
 - [ ] 7. Build inventory management screens (Owner: Person A)
-  - [ ] 7.1 Build inventory list
+  - [x] 7.1 Build inventory list
     - Show pantry lots with category, quantity, storage, date status, review status, and marketplace eligibility.
     - _Requirements: 4.5, 7.1_
 
