@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   Archive,
   ClipboardCheck,
+  Download,
   LayoutDashboard,
   PackagePlus,
 } from "lucide-react";
@@ -14,6 +15,7 @@ const navItems = [
   { href: "/inventory", label: "Inventory", icon: Archive },
   { href: "/expiring", label: "Expiring", icon: ClipboardCheck },
   { href: "/review", label: "Review", icon: LayoutDashboard },
+  { href: "/exports", label: "Exports", icon: Download },
 ];
 
 export function AppShell({

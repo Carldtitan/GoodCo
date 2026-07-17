@@ -213,7 +213,7 @@ Tasks are split for two people working in parallel after the shared contract is 
   - _Requirements: 2.1, 7.1, 8.4, 11.4_
 
 - [ ] 11. Reporting, export, and operational validation (Owner: Person A)
-  - [ ] 11.1 Add CSV exports
+  - [x] 11.1 Add CSV exports
     - Export products, lots, movements, listings, requests, transfers, classification events, and policy records.
     - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
