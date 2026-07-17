@@ -4,6 +4,7 @@ import {
   ClipboardCheck,
   LayoutDashboard,
   PackagePlus,
+  Store,
 } from "lucide-react";
 
 const navItems = [
@@ -11,6 +12,7 @@ const navItems = [
   { href: "/inventory", label: "Inventory", icon: Archive },
   { href: "/expiring", label: "Expiring", icon: ClipboardCheck },
   { href: "/review", label: "Review", icon: LayoutDashboard },
+  { href: "/marketplace", label: "Marketplace", icon: Store },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -21,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="text-base font-semibold">
             GoodCo
           </Link>
-          <nav aria-label="Primary" className="flex items-center gap-1">
+          <nav aria-label="Primary" className="flex min-w-0 items-center gap-1 overflow-x-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (

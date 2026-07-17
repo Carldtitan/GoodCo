@@ -122,7 +122,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 1.3, 8.4, 8.5_
 
 - [ ] 5. Build marketplace browsing and listing creation (Owner: Person B)
-  - [ ] 5.1 Build marketplace shell
+  - [x] 5.1 Build marketplace shell
     - Add Marketplace, My Listings, My Requests, and Admin Console navigation.
     - _Requirements: 7.3, 8.1_
 
