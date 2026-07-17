@@ -221,7 +221,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Show classification corrections and transfer traceability from source lot to destination lot.
     - _Requirements: 5.2, 9.5, 11.3_
 
-  - [ ]* 11.3 Add no-synthetic-marketplace validation test
+  - [x]* 11.3 Add no-synthetic-marketplace validation test
     - Assert the marketplace renders empty until a confirmed inventory lot is listed.
     - _Requirements: 2.1, 2.2_
 
