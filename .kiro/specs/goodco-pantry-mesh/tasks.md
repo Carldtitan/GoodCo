@@ -100,7 +100,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 5.2, 5.3, 5.5, 6.1_
 
 - [ ] 4. Implement inventory marketplace seam APIs (Owner: Person A)
-  - [ ] 4.1 Implement eligible lots query
+  - [x] 4.1 Implement eligible lots query
     - Return only lots where `review_status = confirmed`, `redistribution_allowed = true`, quantity is available, and `tefap_flag = false` by default.
     - _Requirements: 1.2, 1.4, 7.1, 9.2_
 
