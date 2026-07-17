@@ -116,7 +116,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Decrement source inventory, create destination inventory lot, and write `marketplace_transferred` movement.
     - _Requirements: 1.3, 8.4, 9.5_
 
-  - [ ]* 4.5 Add tests for reserve/cancel/finalize semantics
+  - [x]* 4.5 Add tests for reserve/cancel/finalize semantics
     - Verify reservations do not remove on-hand quantity until transfer finalization.
     - Verify cancellation releases reserved quantity.
     - _Requirements: 1.3, 8.4, 8.5_
