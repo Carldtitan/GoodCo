@@ -61,7 +61,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 1.1, 2.1, 2.2_
 
 - [ ] 3. Implement inventory receiving and categorization (Owner: Person A)
-  - [ ] 3.1 Build pantry context and receiving shell
+  - [x] 3.1 Build pantry context and receiving shell
     - Add authenticated pantry context and receiving navigation.
     - _Requirements: 3.1, 4.1_
 
