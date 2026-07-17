@@ -57,12 +57,14 @@ Apply the SQL files in `supabase/migrations` in order through the Supabase SQL E
 
 The app expects Supabase Auth users to be linked to a pantry through `pantry_memberships`. Without that record, authenticated users cannot access pantry-owned inventory.
 
-Google sign-in must be enabled in Supabase Auth Providers. Add the deployed callback URL to Supabase Auth redirect URLs:
+Email sign-in uses Supabase magic links. Add the deployed callback URLs to Supabase Auth redirect URLs:
 
 - `https://goodco-weld.vercel.app/auth/callback`
 - `https://goodco-weld.vercel.app/auth/confirm`
 
-The migration `0005_google_admin_bootstrap.sql` grants `carl@uni.minerva.edu` a `network_admin` membership when that Google user exists or signs in.
+Supabase stores the exchanged session in SSR auth cookies, so users stay signed in across browser refreshes until the Supabase session expires or they clear cookies.
+
+The migration `0005_google_admin_bootstrap.sql` grants `carl@uni.minerva.edu` a `network_admin` membership when that user exists or signs in.
 
 ## Inventory Stream
 
