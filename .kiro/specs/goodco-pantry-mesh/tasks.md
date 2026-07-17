@@ -183,7 +183,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Approve or suspend pantry marketplace access.
     - _Requirements: 3.1, 3.2_
 
-  - [ ] 8.2 Build network policy controls
+  - [x] 8.2 Build network policy controls
     - Configure restricted categories, admin approval requirement, TEFAP transfer disabled default, and paid transfer disabled default.
     - _Requirements: 9.1, 9.2, 9.3, 10.1, 10.3_
 
