@@ -139,7 +139,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Show item, quantity, source pantry, pickup details, traceability fields, storage requirement, and restriction badges.
     - _Requirements: 7.3, 9.3, 10.2_
 
-  - [ ]* 5.5 Add tests for listing creation guardrails
+  - [x] 5.5 Add tests for listing creation guardrails
     - Assert listings cannot be created without an eligible inventory lot.
     - _Requirements: 1.2, 2.1, 7.1_
 
