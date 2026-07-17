@@ -192,7 +192,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - _Requirements: 9.5, 11.4_
 
 - [ ] 9. Integrate marketplace transfer lifecycle (Owner: Person B with Person A contract review)
-  - [ ] 9.1 Connect request to inventory reservation API
+  - [x] 9.1 Connect request to inventory reservation API
     - Marketplace requests call the inventory seam instead of mutating lot quantities directly.
     - _Requirements: 1.3, 8.1_
 
