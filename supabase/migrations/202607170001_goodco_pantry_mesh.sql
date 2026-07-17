@@ -194,3 +194,43 @@ create policy "participants read marketplace requests" on marketplace_requests f
 create policy "participants read transfers" on marketplace_transfers for select using (public.is_pantry_member(source_pantry_id) or public.is_pantry_member(destination_pantry_id));
 create policy "network admins manage policy" on network_policies for all using (public.is_network_admin(network_id)) with check (public.is_network_admin(network_id));
 create policy "network users read policy decisions" on marketplace_policy_decisions for select using (public.is_network_admin(network_id));
+
+create or replace function public.reserve_marketplace_inventory(
+  p_listing_id uuid,
+  p_request_id uuid,
+  p_lot_id uuid,
+  p_quantity numeric,
+  p_unit text,
+  p_actor_id uuid
+) returns uuid language plpgsql security definer set search_path = public as $$
+declare
+  listing marketplace_listings%rowtype;
+  lot inventory_lots%rowtype;
+  movement_id uuid;
+begin
+  if p_quantity <= 0 then raise exception 'Reservation quantity must be greater than zero'; end if;
+
+  select * into listing from marketplace_listings where id = p_listing_id for update;
+  if not found then raise exception 'Marketplace listing not found'; end if;
+  if listing.lot_id <> p_lot_id or listing.unit <> p_unit then raise exception 'Listing does not match inventory lot'; end if;
+  if listing.status not in ('active', 'reserved') or listing.move_by < current_date then raise exception 'Listing is no longer available'; end if;
+  if listing.quantity_available < p_quantity then raise exception 'Requested quantity is no longer available'; end if;
+
+  select * into lot from inventory_lots where id = p_lot_id for update;
+  if not found then raise exception 'Inventory lot not found'; end if;
+  if lot.quantity_on_hand - lot.quantity_reserved < p_quantity then raise exception 'Inventory quantity is no longer available'; end if;
+
+  update inventory_lots set quantity_reserved = quantity_reserved + p_quantity, updated_at = now() where id = p_lot_id;
+  update marketplace_listings
+    set quantity_available = quantity_available - p_quantity,
+        status = case when quantity_available - p_quantity = 0 then 'reserved' else 'active' end,
+        updated_at = now()
+    where id = p_listing_id;
+  insert into inventory_movements (lot_id, movement_type, quantity_delta, unit, actor_id, marketplace_listing_id, marketplace_request_id, note)
+    values (p_lot_id, 'marketplace_reserved', -p_quantity, p_unit, p_actor_id, p_listing_id, p_request_id, 'Marketplace quantity reserved')
+    returning id into movement_id;
+  return movement_id;
+end;
+$$;
+
+revoke all on function public.reserve_marketplace_inventory(uuid, uuid, uuid, numeric, text, uuid) from public;
