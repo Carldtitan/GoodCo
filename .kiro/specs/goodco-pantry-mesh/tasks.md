@@ -85,7 +85,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Validate structured JSON against contract enums before showing a draft.
     - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-  - [ ] 3.6 Build review-before-save flow
+  - [x] 3.6 Build review-before-save flow
     - Show draft item, quantity, unit, date, storage, category, confidence, and source trail.
     - Require human confirmation before saving.
     - _Requirements: 4.4, 4.5, 5.5_

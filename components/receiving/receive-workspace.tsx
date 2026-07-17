@@ -4,6 +4,12 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { BrowserMultiFormatReader, type IScannerControls } from "@zxing/browser";
 import { Bot, Camera, Mic, Search, Square, Upload } from "lucide-react";
 import { createWorker } from "tesseract.js";
+import {
+  PANTRY_CATEGORIES,
+  SOURCE_TYPES,
+  STORAGE_TYPES,
+  UNITS,
+} from "@/contracts/goodco-pantry-mesh.constants";
 import { parseDateDraft, type DateDraft } from "@/lib/dates/parse";
 import type { ProductLookupResult } from "@/lib/products/types";
 
@@ -41,6 +47,17 @@ export function ReceiveWorkspace() {
   });
   const [isScanning, setIsScanning] = useState(false);
   const [dateDraft, setDateDraft] = useState<DateDraft | null>(null);
+  const [reviewConfirmed, setReviewConfirmed] = useState(false);
+  const [draft, setDraft] = useState({
+    itemName: "",
+    quantity: "",
+    unit: "each",
+    category: "unknown",
+    storageType: "dry",
+    sourceType: "unknown",
+    date: "",
+    redistributionAllowed: false,
+  });
   const [dateStatus, setDateStatus] = useState<
     "idle" | "reading" | "listening" | "error"
   >("idle");
@@ -81,7 +98,15 @@ export function ReceiveWorkspace() {
           throw new Error(body.error ?? "Lookup failed");
         }
 
-        setLookup({ status: "done", result: body.result, error: null });
+        const result = body.result;
+        setLookup({ status: "done", result, error: null });
+        setDraft((current) => ({
+          ...current,
+          itemName: result.name,
+          category: result.pantryCategory,
+          storageType: result.categoryStorageType,
+        }));
+        setReviewConfirmed(false);
       } catch (error) {
         setLookup((current) => ({
           status: "error",
@@ -129,6 +154,11 @@ export function ReceiveWorkspace() {
       await worker.terminate();
       const rawText = result.data.text.trim();
       setDateDraft(parseDateDraft(rawText, "ocr"));
+      setDraft((current) => ({
+        ...current,
+        date: parseDateDraft(rawText, "ocr").normalizedDate ?? current.date,
+      }));
+      setReviewConfirmed(false);
       setDateStatus("idle");
     } catch {
       setDateError("Could not read date.");
@@ -152,7 +182,13 @@ export function ReceiveWorkspace() {
     recognition.interimResults = false;
     recognition.onresult = (event) => {
       const transcript = event.results[0]?.[0]?.transcript ?? "";
-      setDateDraft(parseDateDraft(transcript, "voice", transcript));
+      const nextDateDraft = parseDateDraft(transcript, "voice", transcript);
+      setDateDraft(nextDateDraft);
+      setDraft((current) => ({
+        ...current,
+        date: nextDateDraft.normalizedDate ?? current.date,
+      }));
+      setReviewConfirmed(false);
     };
     recognition.onerror = () => {
       setDateError("Voice failed.");
@@ -234,6 +270,10 @@ export function ReceiveWorkspace() {
           confidence: body.result.date.confidence,
           reviewStatus: "draft_high_confidence",
         });
+        setDraft((current) => ({
+          ...current,
+          date: body.result!.date?.normalizedDate ?? current.date,
+        }));
       }
     } catch {
       setDateError("Manual review needed.");
@@ -373,8 +413,9 @@ export function ReceiveWorkspace() {
         </div>
       </div>
 
-      <aside className="rounded-panel border border-border bg-surface p-4 shadow-panel">
-        <h2 className="text-sm font-semibold">Product</h2>
+      <aside className="grid gap-4">
+        <div className="rounded-panel border border-border bg-surface p-4 shadow-panel">
+          <h2 className="text-sm font-semibold">Product</h2>
         {lookup.result?.found ? (
           <dl className="mt-3 grid gap-3 text-sm">
             <div>
@@ -394,6 +435,10 @@ export function ReceiveWorkspace() {
               <dd>{lookup.result.pantryCategory}</dd>
             </div>
             <div>
+              <dt className="text-xs text-muted">Confidence</dt>
+              <dd>{Math.round(lookup.result.categoryConfidence * 100)}%</dd>
+            </div>
+            <div>
               <dt className="text-xs text-muted">Source</dt>
               <dd>{lookup.result.source}</dd>
             </div>
@@ -401,6 +446,176 @@ export function ReceiveWorkspace() {
         ) : (
           <p className="mt-3 text-sm text-muted">No product selected.</p>
         )}
+        </div>
+
+        <div className="rounded-panel border border-border bg-surface p-4 shadow-panel">
+          <h2 className="text-sm font-semibold">Review</h2>
+          <div className="mt-3 grid gap-3">
+            <label className="grid gap-1 text-sm font-medium">
+              Item
+              <input
+                value={draft.itemName}
+                onChange={(event) => {
+                  setDraft((current) => ({
+                    ...current,
+                    itemName: event.target.value,
+                  }));
+                  setReviewConfirmed(false);
+                }}
+                className="h-10 rounded-panel border border-border bg-surface px-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              />
+            </label>
+
+            <div className="grid grid-cols-[1fr_7rem] gap-2">
+              <label className="grid gap-1 text-sm font-medium">
+                Qty
+                <input
+                  value={draft.quantity}
+                  onChange={(event) => {
+                    setDraft((current) => ({
+                      ...current,
+                      quantity: event.target.value,
+                    }));
+                    setReviewConfirmed(false);
+                  }}
+                  inputMode="decimal"
+                  className="h-10 rounded-panel border border-border bg-surface px-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Unit
+                <select
+                  value={draft.unit}
+                  onChange={(event) => {
+                    setDraft((current) => ({
+                      ...current,
+                      unit: event.target.value,
+                    }));
+                    setReviewConfirmed(false);
+                  }}
+                  className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
+                  {UNITS.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="grid gap-1 text-sm font-medium">
+              Category
+              <select
+                value={draft.category}
+                onChange={(event) => {
+                  setDraft((current) => ({
+                    ...current,
+                    category: event.target.value,
+                  }));
+                  setReviewConfirmed(false);
+                }}
+                className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                {PANTRY_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="grid grid-cols-2 gap-2">
+              <label className="grid gap-1 text-sm font-medium">
+                Storage
+                <select
+                  value={draft.storageType}
+                  onChange={(event) => {
+                    setDraft((current) => ({
+                      ...current,
+                      storageType: event.target.value,
+                    }));
+                    setReviewConfirmed(false);
+                  }}
+                  className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
+                  {STORAGE_TYPES.map((storageType) => (
+                    <option key={storageType} value={storageType}>
+                      {storageType}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Date
+                <input
+                  value={draft.date}
+                  onChange={(event) => {
+                    setDraft((current) => ({
+                      ...current,
+                      date: event.target.value,
+                    }));
+                    setReviewConfirmed(false);
+                  }}
+                  type="date"
+                  className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                />
+              </label>
+            </div>
+
+            <label className="grid gap-1 text-sm font-medium">
+              Source
+              <select
+                value={draft.sourceType}
+                onChange={(event) => {
+                  setDraft((current) => ({
+                    ...current,
+                    sourceType: event.target.value,
+                  }));
+                  setReviewConfirmed(false);
+                }}
+                className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                {SOURCE_TYPES.map((sourceType) => (
+                  <option key={sourceType} value={sourceType}>
+                    {sourceType}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                checked={draft.redistributionAllowed}
+                onChange={(event) => {
+                  setDraft((current) => ({
+                    ...current,
+                    redistributionAllowed: event.target.checked,
+                  }));
+                  setReviewConfirmed(false);
+                }}
+                type="checkbox"
+                className="size-4 accent-accent"
+              />
+              Redistribute
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setReviewConfirmed(true)}
+              disabled={
+                !draft.itemName.trim() || Number(draft.quantity) <= 0
+              }
+              className="inline-flex h-11 items-center justify-center rounded-panel bg-foreground px-4 text-sm font-semibold text-surface transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              Confirm
+            </button>
+
+            {reviewConfirmed ? (
+              <p className="text-sm font-medium text-success">Ready</p>
+            ) : null}
+          </div>
+        </div>
       </aside>
     </section>
   );
