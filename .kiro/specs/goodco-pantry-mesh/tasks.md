@@ -131,7 +131,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Require quantity, pickup window, storage type, move-by date, and approval mode.
     - _Requirements: 1.2, 7.1, 7.2_
 
-  - [ ] 5.3 Build marketplace browse
+  - [x] 5.3 Build marketplace browse
     - Show active listings with category, county, storage, move-by urgency, availability confidence, and distance/filter controls.
     - _Requirements: 3.3, 7.3_
 
