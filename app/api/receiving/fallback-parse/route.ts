@@ -9,6 +9,7 @@ const fallbackParseSchema = z.object({
   brand: z.string().optional().nullable(),
   externalCategory: z.string().optional().nullable(),
   dateRawText: z.string().optional().nullable(),
+  voiceTranscript: z.string().optional().nullable(),
 });
 
 export async function POST(request: Request) {
