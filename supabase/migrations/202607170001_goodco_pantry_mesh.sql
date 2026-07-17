@@ -174,7 +174,15 @@ alter table marketplace_transfers enable row level security;
 alter table network_policies enable row level security;
 alter table marketplace_policy_decisions enable row level security;
 
-create policy "network members can read pantries" on pantries for select using (public.is_pantry_member(id) or public.is_network_admin(network_id));
+create policy "network members can read pantries" on pantries for select using (
+  public.is_pantry_member(id)
+  or public.is_network_admin(network_id)
+  or exists (
+    select 1 from pantry_memberships pm
+    join pantries member_pantry on member_pantry.id = pm.pantry_id
+    where pm.user_id = auth.uid() and member_pantry.network_id = pantries.network_id
+  )
+);
 create policy "members can read their memberships" on pantry_memberships for select using (user_id = auth.uid());
 create policy "network admins manage memberships" on pantry_memberships for all using (
   public.is_network_admin((select network_id from pantries where id = pantry_id))
