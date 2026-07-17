@@ -148,6 +148,7 @@ create index if not exists pantry_memberships_pantry_id_idx on pantry_membership
 create index if not exists inventory_lots_pantry_eligibility_idx on inventory_lots(pantry_id, review_status, redistribution_allowed, tefap_flag);
 create index if not exists marketplace_listings_browse_idx on marketplace_listings(status, move_by, source_pantry_id);
 create index if not exists marketplace_requests_listing_idx on marketplace_requests(listing_id, status);
+create unique index if not exists marketplace_transfers_request_id_idx on marketplace_transfers(request_id);
 
 create or replace function public.is_pantry_member(target_pantry_id uuid)
 returns boolean language sql stable security definer set search_path = public as $$
@@ -271,3 +272,68 @@ end;
 $$;
 
 revoke all on function public.cancel_marketplace_reservation(uuid, uuid, uuid, numeric, text, uuid, text) from public;
+
+create or replace function public.finalize_marketplace_transfer(
+  p_listing_id uuid,
+  p_request_id uuid,
+  p_source_lot_id uuid,
+  p_source_pantry_id uuid,
+  p_destination_pantry_id uuid,
+  p_quantity numeric,
+  p_unit text,
+  p_actor_id uuid,
+  p_temperature_at_pickup numeric default null,
+  p_temperature_at_receipt numeric default null,
+  p_photo_url text default null
+) returns uuid language plpgsql security definer set search_path = public as $$
+declare
+  listing marketplace_listings%rowtype;
+  request_row marketplace_requests%rowtype;
+  source_lot inventory_lots%rowtype;
+  transfer_row marketplace_transfers%rowtype;
+  v_destination_lot_id uuid;
+begin
+  if p_quantity <= 0 then raise exception 'Transfer quantity must be greater than zero'; end if;
+  select * into request_row from marketplace_requests where id = p_request_id for update;
+  if not found or request_row.listing_id <> p_listing_id or request_row.source_pantry_id <> p_source_pantry_id
+    or request_row.requesting_pantry_id <> p_destination_pantry_id then raise exception 'Transfer does not match marketplace request'; end if;
+  if request_row.status <> 'received' then raise exception 'Destination pantry must confirm receipt before finalizing transfer'; end if;
+  select * into transfer_row from marketplace_transfers where request_id = p_request_id for update;
+  if not found or transfer_row.handoff_confirmed_by is null then raise exception 'Source pantry must confirm handoff before finalizing transfer'; end if;
+  select * into listing from marketplace_listings where id = p_listing_id for update;
+  if not found or listing.lot_id <> p_source_lot_id or listing.source_pantry_id <> p_source_pantry_id or listing.unit <> p_unit
+    then raise exception 'Listing does not match transfer'; end if;
+  select * into source_lot from inventory_lots where id = p_source_lot_id for update;
+  if not found or source_lot.pantry_id <> p_source_pantry_id or source_lot.quantity_on_hand < p_quantity
+    or source_lot.quantity_reserved < p_quantity then raise exception 'Source inventory is no longer available'; end if;
+
+  insert into inventory_lots (
+    product_id, pantry_id, quantity_on_hand, quantity_reserved, unit, source_type, received_at,
+    best_by, use_by, sell_by, expiration_date, production_date, packaging_date, move_by,
+    date_label_type, date_raw_text, date_voice_transcript, date_source, date_confidence, date_review_status,
+    lot_code, storage_type, tefap_flag, redistribution_allowed, confidence, review_status
+  ) values (
+    source_lot.product_id, p_destination_pantry_id, p_quantity, 0, p_unit, source_lot.source_type, now(),
+    source_lot.best_by, source_lot.use_by, source_lot.sell_by, source_lot.expiration_date, source_lot.production_date,
+    source_lot.packaging_date, source_lot.move_by, source_lot.date_label_type, source_lot.date_raw_text,
+    source_lot.date_voice_transcript, source_lot.date_source, source_lot.date_confidence, source_lot.date_review_status,
+    source_lot.lot_code, source_lot.storage_type, source_lot.tefap_flag, false, source_lot.confidence, 'confirmed'
+  ) returning id into v_destination_lot_id;
+
+  update inventory_lots set quantity_on_hand = quantity_on_hand - p_quantity, quantity_reserved = quantity_reserved - p_quantity, updated_at = now()
+    where id = p_source_lot_id;
+  update marketplace_listings set status = case when quantity_available = 0 then 'fulfilled' else 'active' end, updated_at = now()
+    where id = p_listing_id;
+  update marketplace_transfers set destination_lot_id = v_destination_lot_id, receipt_confirmed_by = p_actor_id,
+    temperature_at_pickup = coalesce(p_temperature_at_pickup, temperature_at_pickup),
+    temperature_at_receipt = p_temperature_at_receipt, photo_url = coalesce(p_photo_url, photo_url), completed_at = now()
+    where request_id = p_request_id;
+  insert into inventory_movements (lot_id, movement_type, quantity_delta, unit, actor_id, marketplace_listing_id, marketplace_request_id, note)
+    values (p_source_lot_id, 'marketplace_transferred', -p_quantity, p_unit, p_actor_id, p_listing_id, p_request_id, 'Marketplace transfer sent');
+  insert into inventory_movements (lot_id, movement_type, quantity_delta, unit, actor_id, marketplace_listing_id, marketplace_request_id, note)
+    values (v_destination_lot_id, 'receiving', p_quantity, p_unit, p_actor_id, p_listing_id, p_request_id, 'Marketplace transfer received');
+  return v_destination_lot_id;
+end;
+$$;
+
+revoke all on function public.finalize_marketplace_transfer(uuid, uuid, uuid, uuid, uuid, numeric, text, uuid, numeric, numeric, text) from public;
