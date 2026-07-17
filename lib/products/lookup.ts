@@ -82,6 +82,12 @@ function emptyLookup(barcode: string): ProductLookupResult {
     allergens: [],
     openFoodFactsCategories: [],
     fdcFoodCategory: null,
+    pantryCategory: "unknown",
+    subcategory: null,
+    categoryStorageType: "dry",
+    categoryConfidence: 0,
+    categorySource: "unknown",
+    categoryMatchedBy: null,
   };
 }
 
@@ -126,6 +132,12 @@ async function lookupOpenFoodFacts(
     allergens: product.allergens_tags?.map(cleanTag).filter(Boolean) ?? [],
     openFoodFactsCategories: categories,
     fdcFoodCategory: null,
+    pantryCategory: "unknown",
+    subcategory: null,
+    categoryStorageType: "dry",
+    categoryConfidence: 0,
+    categorySource: "unknown",
+    categoryMatchedBy: null,
   };
 }
 
@@ -163,6 +175,12 @@ async function lookupUsda(
     allergens: [],
     openFoodFactsCategories: [],
     fdcFoodCategory: food.foodCategory?.trim() || null,
+    pantryCategory: "unknown",
+    subcategory: null,
+    categoryStorageType: "dry",
+    categoryConfidence: 0,
+    categorySource: "unknown",
+    categoryMatchedBy: null,
   };
 }
 

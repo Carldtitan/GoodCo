@@ -167,6 +167,10 @@ export function ReceiveWorkspace() {
               <dd>{lookup.result.packageSize ?? "Unknown"}</dd>
             </div>
             <div>
+              <dt className="text-xs text-muted">Category</dt>
+              <dd>{lookup.result.pantryCategory}</dd>
+            </div>
+            <div>
               <dt className="text-xs text-muted">Source</dt>
               <dd>{lookup.result.source}</dd>
             </div>
