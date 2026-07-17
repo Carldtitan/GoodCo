@@ -161,7 +161,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Show requested, approved, ready for pickup, picked up, received, and cancelled requests.
     - _Requirements: 8.3, 8.4, 8.5_
 
-  - [ ]* 6.5 Add request lifecycle tests
+  - [x] 6.5 Add request lifecycle tests
     - Assert invalid requests are rejected and valid requests enter the expected state.
     - _Requirements: 8.1, 8.2_
 
