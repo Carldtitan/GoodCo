@@ -90,7 +90,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Require human confirmation before saving.
     - _Requirements: 4.4, 4.5, 5.5_
 
-  - [ ] 3.7 Save inventory lots and receiving movements
+  - [x] 3.7 Save inventory lots and receiving movements
     - Persist product, lot, classification event, extraction job, and initial receiving movement.
     - _Requirements: 4.5, 11.3_
 
