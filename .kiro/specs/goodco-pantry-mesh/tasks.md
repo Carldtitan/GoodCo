@@ -230,7 +230,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Confirm tests pass for category mapping, date parsing, eligibility rules, reservation/finalization, RLS, and real-data constraints.
     - _Requirements: 1, 2, 5, 8, 9, 10_
 
-  - [ ] 12.2 Review env and README handoff
+  - [x] 12.2 Review env and README handoff
     - Ensure `.env.example` contains only required variables and no real secrets.
     - Document setup without adding optional model/provider clutter.
     - _Requirements: 11.1_
