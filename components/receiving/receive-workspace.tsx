@@ -10,7 +10,13 @@ import {
   STORAGE_TYPES,
   UNITS,
 } from "@/contracts/goodco-pantry-mesh.constants";
-import type { PantryCategory } from "@/contracts/goodco-pantry-mesh.types";
+import type {
+  PantryCategory,
+  SourceType,
+  StorageType,
+  Unit,
+} from "@/contracts/goodco-pantry-mesh.types";
+import type { CategorySource } from "@/lib/categories/taxonomy";
 import { parseDateDraft, type DateDraft } from "@/lib/dates/parse";
 import type { ProductLookupResult } from "@/lib/products/types";
 
@@ -39,6 +45,38 @@ type LookupState =
   | { status: "done"; result: ProductLookupResult; error: null }
   | { status: "error"; result: ProductLookupResult | null; error: string };
 
+type ReceivingDraftState = {
+  itemName: string;
+  quantity: string;
+  unit: Unit;
+  category: PantryCategory;
+  subcategory: string | null;
+  storageType: StorageType;
+  sourceType: SourceType;
+  categorySource: CategorySource | "manual";
+  categoryConfidence: number;
+  date: string;
+  redistributionAllowed: boolean;
+};
+
+type ReceivingParseResult = {
+  itemName?: string | null;
+  quantity?: number | null;
+  unit?: Unit | null;
+  category: ProductLookupResult["pantryCategory"];
+  subcategory: string | null;
+  storageType: ProductLookupResult["categoryStorageType"];
+  sourceType?: SourceType | null;
+  redistributionAllowed?: boolean | null;
+  categoryConfidence: number;
+  date: {
+    normalizedDate: string | null;
+    labelType: DateDraft["labelType"];
+    confidence: number;
+    rawText: string | null;
+  } | null;
+};
+
 export function ReceiveWorkspace() {
   const [barcode, setBarcode] = useState("");
   const [lookup, setLookup] = useState<LookupState>({
@@ -49,18 +87,21 @@ export function ReceiveWorkspace() {
   const [isScanning, setIsScanning] = useState(false);
   const [dateDraft, setDateDraft] = useState<DateDraft | null>(null);
   const [reviewConfirmed, setReviewConfirmed] = useState(false);
-  const [draft, setDraft] = useState({
+  const [draft, setDraft] = useState<ReceivingDraftState>({
     itemName: "",
     quantity: "",
     unit: "each",
     category: "unknown",
+    subcategory: null,
     storageType: "dry",
     sourceType: "unknown",
+    categorySource: "manual",
+    categoryConfidence: 0.25,
     date: "",
     redistributionAllowed: false,
   });
   const [dateStatus, setDateStatus] = useState<
-    "idle" | "reading" | "listening" | "error"
+    "idle" | "reading" | "listening" | "parsing" | "error"
   >("idle");
   const [dateError, setDateError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<
@@ -71,6 +112,7 @@ export function ReceiveWorkspace() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
   const speechRef = useRef<SpeechRecognition | null>(null);
+  const voiceParsingRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -109,7 +151,10 @@ export function ReceiveWorkspace() {
           ...current,
           itemName: result.name,
           category: result.pantryCategory,
+          subcategory: result.subcategory,
           storageType: result.categoryStorageType,
+          categorySource: result.categorySource,
+          categoryConfidence: result.categoryConfidence,
         }));
         setReviewConfirmed(false);
       } catch (error) {
@@ -171,7 +216,119 @@ export function ReceiveWorkspace() {
     }
   }
 
-  function startVoiceDate() {
+  function applyReceivingParseResult(
+    result: ReceivingParseResult,
+    transcript: string | null = null,
+  ) {
+    setLookup((current) =>
+      current.result
+        ? {
+            status: "done",
+            error: null,
+            result: {
+              ...current.result,
+              pantryCategory: result.category,
+              subcategory: result.subcategory,
+              categoryStorageType: result.storageType,
+              categoryConfidence: result.categoryConfidence,
+              categorySource: "llm_parse",
+              categoryMatchedBy: null,
+            },
+          }
+        : current,
+    );
+
+    if (result.date) {
+      setDateDraft({
+        rawText: result.date.rawText ?? transcript ?? "",
+        transcript,
+        normalizedDate: result.date.normalizedDate,
+        labelType: result.date.labelType,
+        source: "llm_parse",
+        confidence: result.date.confidence,
+        reviewStatus: result.date.normalizedDate
+          ? "draft_high_confidence"
+          : "needs_review",
+      });
+    } else if (transcript) {
+      setDateDraft(parseDateDraft(transcript, "voice", transcript));
+    }
+
+    setDraft((current) => {
+      const categoryWasUnknown = current.category === "unknown";
+      const shouldUseCategory =
+        result.category !== "unknown" || categoryWasUnknown;
+
+      return {
+        ...current,
+        itemName: result.itemName?.trim() || current.itemName,
+        quantity:
+          typeof result.quantity === "number"
+            ? String(result.quantity)
+            : current.quantity,
+        unit: result.unit ?? current.unit,
+        category: shouldUseCategory ? result.category : current.category,
+        subcategory: shouldUseCategory ? result.subcategory : current.subcategory,
+        storageType: shouldUseCategory ? result.storageType : current.storageType,
+        sourceType: result.sourceType ?? current.sourceType,
+        categorySource: shouldUseCategory ? "llm_parse" : current.categorySource,
+        categoryConfidence: shouldUseCategory
+          ? result.categoryConfidence
+          : current.categoryConfidence,
+        date: result.date?.normalizedDate ?? current.date,
+        redistributionAllowed:
+          typeof result.redistributionAllowed === "boolean"
+            ? result.redistributionAllowed
+            : current.redistributionAllowed,
+      };
+    });
+    resetReviewState();
+  }
+
+  async function parseVoiceDescription(transcript: string) {
+    const cleaned = transcript.trim();
+    if (!cleaned) {
+      setDateError("Nothing heard.");
+      setDateStatus("error");
+      return;
+    }
+
+    voiceParsingRef.current = true;
+    setDateStatus("parsing");
+    setDateError(null);
+
+    try {
+      const response = await fetch("/api/receiving/fallback-parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productName: draft.itemName || null,
+          externalCategory:
+            draft.category === "unknown" ? null : draft.category,
+          dateRawText: cleaned,
+          voiceTranscript: cleaned,
+        }),
+      });
+      const body = (await response.json()) as {
+        result?: ReceivingParseResult | null;
+      };
+
+      if (!response.ok || !body.result) {
+        throw new Error("Voice parse failed");
+      }
+
+      applyReceivingParseResult(body.result, cleaned);
+      setDateStatus("idle");
+    } catch {
+      setDateDraft(parseDateDraft(cleaned, "voice", cleaned));
+      setDateError("Review manually.");
+      setDateStatus("error");
+    } finally {
+      voiceParsingRef.current = false;
+    }
+  }
+
+  function startVoiceIntake() {
     const speechWindow = window as SpeechWindow;
     const Recognition =
       speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
@@ -187,20 +344,16 @@ export function ReceiveWorkspace() {
     recognition.interimResults = false;
     recognition.onresult = (event) => {
       const transcript = event.results[0]?.[0]?.transcript ?? "";
-      const nextDateDraft = parseDateDraft(transcript, "voice", transcript);
-      setDateDraft(nextDateDraft);
-      setDraft((current) => ({
-        ...current,
-        date: nextDateDraft.normalizedDate ?? current.date,
-      }));
-      setReviewConfirmed(false);
+      void parseVoiceDescription(transcript);
     };
     recognition.onerror = () => {
       setDateError("Voice failed.");
       setDateStatus("error");
     };
     recognition.onend = () => {
-      setDateStatus("idle");
+      if (!voiceParsingRef.current) {
+        setDateStatus("idle");
+      }
       speechRef.current = null;
     };
     speechRef.current = recognition;
@@ -253,9 +406,9 @@ export function ReceiveWorkspace() {
       openFoodFactsCategories: [],
       fdcFoodCategory: null,
       suggestedCategory: draft.category as PantryCategory,
-      categorySource: "manual",
-      categoryConfidence: draft.category === "unknown" ? 0.25 : 1,
-      subcategory: null,
+      categorySource: draft.categorySource,
+      categoryConfidence: draft.categoryConfidence,
+      subcategory: draft.subcategory,
     };
   }
 
@@ -275,55 +428,12 @@ export function ReceiveWorkspace() {
         }),
       });
       const body = (await response.json()) as {
-        result?: {
-          category: ProductLookupResult["pantryCategory"];
-          subcategory: string | null;
-          storageType: ProductLookupResult["categoryStorageType"];
-          categoryConfidence: number;
-          date: {
-            normalizedDate: string | null;
-            labelType: DateDraft["labelType"];
-            confidence: number;
-            rawText: string | null;
-          } | null;
-        } | null;
+        result?: ReceivingParseResult | null;
       };
 
       if (!response.ok || !body.result) return;
 
-      setLookup((current) =>
-        current.result
-          ? {
-              status: "done",
-              error: null,
-              result: {
-                ...current.result,
-                pantryCategory: body.result!.category,
-                subcategory: body.result!.subcategory,
-                categoryStorageType: body.result!.storageType,
-                categoryConfidence: body.result!.categoryConfidence,
-                categorySource: "llm_parse",
-                categoryMatchedBy: null,
-              },
-            }
-          : current,
-      );
-
-      if (body.result.date) {
-        setDateDraft({
-          rawText: body.result.date.rawText ?? dateDraft?.rawText ?? "",
-          transcript: dateDraft?.transcript ?? null,
-          normalizedDate: body.result.date.normalizedDate,
-          labelType: body.result.date.labelType,
-          source: "llm_parse",
-          confidence: body.result.date.confidence,
-          reviewStatus: "draft_high_confidence",
-        });
-        setDraft((current) => ({
-          ...current,
-          date: body.result!.date?.normalizedDate ?? current.date,
-        }));
-      }
+      applyReceivingParseResult(body.result, dateDraft?.transcript ?? null);
     } catch {
       setDateError("Manual review needed.");
     }
@@ -467,18 +577,24 @@ export function ReceiveWorkspace() {
             </label>
             <button
               type="button"
-              onClick={startVoiceDate}
-              disabled={dateStatus === "listening" || dateStatus === "reading"}
+              onClick={startVoiceIntake}
+              disabled={
+                dateStatus === "listening" ||
+                dateStatus === "reading" ||
+                dateStatus === "parsing"
+              }
               className="inline-flex h-11 items-center justify-center gap-2 rounded-panel border border-border px-4 text-sm font-semibold transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <Mic aria-hidden="true" size={17} />
-              Date
+              Voice
             </button>
             <span className="text-sm text-muted">
               {dateStatus === "reading"
                 ? "Reading"
                 : dateStatus === "listening"
                   ? "Listening"
+                  : dateStatus === "parsing"
+                    ? "Parsing"
                   : null}
             </span>
             {canFallbackParse ? (
@@ -615,7 +731,7 @@ export function ReceiveWorkspace() {
                   onChange={(event) => {
                   setDraft((current) => ({
                     ...current,
-                    unit: event.target.value,
+                    unit: event.target.value as Unit,
                   }));
                   resetReviewState();
                 }}
@@ -637,7 +753,10 @@ export function ReceiveWorkspace() {
                 onChange={(event) => {
                   setDraft((current) => ({
                     ...current,
-                    category: event.target.value,
+                    category: event.target.value as PantryCategory,
+                    subcategory: null,
+                    categorySource: "manual",
+                    categoryConfidence: event.target.value === "unknown" ? 0.25 : 1,
                   }));
                   resetReviewState();
                 }}
@@ -659,7 +778,7 @@ export function ReceiveWorkspace() {
                   onChange={(event) => {
                   setDraft((current) => ({
                     ...current,
-                    storageType: event.target.value,
+                    storageType: event.target.value as StorageType,
                   }));
                   resetReviewState();
                 }}
@@ -696,7 +815,7 @@ export function ReceiveWorkspace() {
                 onChange={(event) => {
                   setDraft((current) => ({
                     ...current,
-                    sourceType: event.target.value,
+                    sourceType: event.target.value as SourceType,
                   }));
                   resetReviewState();
                 }}

@@ -2,15 +2,22 @@ import { z } from "zod";
 import {
   DATE_LABEL_TYPES,
   PANTRY_CATEGORIES,
+  SOURCE_TYPES,
   STORAGE_TYPES,
+  UNITS,
 } from "@/contracts/goodco-pantry-mesh.constants";
 
 type Fetcher = typeof fetch;
 
 const fireworksDraftSchema = z.object({
+  itemName: z.string().trim().min(1).nullable().optional(),
+  quantity: z.number().positive().nullable().optional(),
+  unit: z.enum(UNITS).nullable().optional(),
   category: z.enum(PANTRY_CATEGORIES),
   subcategory: z.string().trim().min(1).nullable(),
   storageType: z.enum(STORAGE_TYPES),
+  sourceType: z.enum(SOURCE_TYPES).nullable().optional(),
+  redistributionAllowed: z.boolean().nullable().optional(),
   categoryConfidence: z.number().min(0).max(1),
   date: z
     .object({
@@ -33,6 +40,7 @@ export type FireworksParseInput = {
   brand?: string | null;
   externalCategory?: string | null;
   dateRawText?: string | null;
+  voiceTranscript?: string | null;
 };
 
 type FireworksOptions = {
@@ -60,17 +68,27 @@ function jsonOnly(content: string): string {
 function buildPrompt(input: FireworksParseInput): string {
   return [
     "Classify pantry receiving data as strict JSON.",
+    "If voiceTranscript is present, extract the user's pantry receiving draft from natural language.",
+    "Use null for itemName, quantity, unit, sourceType, redistributionAllowed, and date fields that are not stated clearly.",
+    "Do not mark redistributionAllowed true unless the user says it is redistributable, shareable, surplus, for marketplace, for transfer, or for other pantries.",
     "Use only the allowed enum values.",
     "Return no prose.",
     JSON.stringify({
       allowedCategories: PANTRY_CATEGORIES,
       allowedStorageTypes: STORAGE_TYPES,
+      allowedUnits: UNITS,
+      allowedSourceTypes: SOURCE_TYPES,
       allowedDateLabels: DATE_LABEL_TYPES,
       input,
       outputShape: {
+        itemName: "short pantry item label|null",
+        quantity: "number|null",
+        unit: "Unit|null",
         category: "PantryCategory",
         subcategory: "string|null",
         storageType: "StorageType",
+        sourceType: "SourceType|null",
+        redistributionAllowed: "boolean|null",
         categoryConfidence: "number 0..1",
         date: {
           normalizedDate: "YYYY-MM-DD|null",
