@@ -10,6 +10,7 @@ import {
   STORAGE_TYPES,
   UNITS,
 } from "@/contracts/goodco-pantry-mesh.constants";
+import type { PantryCategory } from "@/contracts/goodco-pantry-mesh.types";
 import { parseDateDraft, type DateDraft } from "@/lib/dates/parse";
 import type { ProductLookupResult } from "@/lib/products/types";
 
@@ -65,6 +66,7 @@ export function ReceiveWorkspace() {
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
@@ -213,10 +215,49 @@ export function ReceiveWorkspace() {
     (lookup.result.categorySource === "unknown" ||
       dateDraft?.reviewStatus === "needs_review");
   const canSave =
-    reviewConfirmed &&
-    lookup.result?.found &&
-    draft.itemName.trim() &&
-    Number(draft.quantity) > 0;
+    reviewConfirmed && draft.itemName.trim() && Number(draft.quantity) > 0;
+
+  function resetReviewState() {
+    setReviewConfirmed(false);
+    setSaveStatus("idle");
+    setSaveError(null);
+  }
+
+  function receivingProductDraft() {
+    if (lookup.result?.found) {
+      return {
+        barcode: lookup.result.barcode || null,
+        name: lookup.result.name,
+        brand: lookup.result.brand,
+        packageSize: lookup.result.packageSize,
+        ingredients: lookup.result.ingredients,
+        allergens: lookup.result.allergens,
+        source: lookup.result.source ?? "manual",
+        openFoodFactsCategories: lookup.result.openFoodFactsCategories,
+        fdcFoodCategory: lookup.result.fdcFoodCategory,
+        suggestedCategory: lookup.result.pantryCategory,
+        categorySource: lookup.result.categorySource,
+        categoryConfidence: lookup.result.categoryConfidence,
+        subcategory: lookup.result.subcategory,
+      };
+    }
+
+    return {
+      barcode: barcode.trim() || null,
+      name: draft.itemName.trim(),
+      brand: null,
+      packageSize: null,
+      ingredients: null,
+      allergens: [],
+      source: "manual" as const,
+      openFoodFactsCategories: [],
+      fdcFoodCategory: null,
+      suggestedCategory: draft.category as PantryCategory,
+      categorySource: "manual",
+      categoryConfidence: draft.category === "unknown" ? 0.25 : 1,
+      subcategory: null,
+    };
+  }
 
   async function runFallbackParse() {
     if (!lookup.result?.found) return;
@@ -289,9 +330,11 @@ export function ReceiveWorkspace() {
   }
 
   async function saveReceivingDraft() {
-    if (!lookup.result?.found || !canSave) return;
+    if (!canSave) return;
 
+    const receivingProduct = receivingProductDraft();
     setSaveStatus("saving");
+    setSaveError(null);
 
     try {
       const response = await fetch("/api/inventory/receive", {
@@ -299,25 +342,25 @@ export function ReceiveWorkspace() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product: {
-            barcode: lookup.result.barcode || null,
-            name: lookup.result.name,
-            brand: lookup.result.brand,
-            packageSize: lookup.result.packageSize,
-            ingredients: lookup.result.ingredients,
-            allergens: lookup.result.allergens,
-            source: lookup.result.source ?? "manual",
-            openFoodFactsCategories: lookup.result.openFoodFactsCategories,
-            fdcFoodCategory: lookup.result.fdcFoodCategory,
-            suggestedCategory: lookup.result.pantryCategory,
-            categorySource: lookup.result.categorySource,
-            categoryConfidence: lookup.result.categoryConfidence,
+            barcode: receivingProduct.barcode,
+            name: receivingProduct.name,
+            brand: receivingProduct.brand,
+            packageSize: receivingProduct.packageSize,
+            ingredients: receivingProduct.ingredients,
+            allergens: receivingProduct.allergens,
+            source: receivingProduct.source,
+            openFoodFactsCategories: receivingProduct.openFoodFactsCategories,
+            fdcFoodCategory: receivingProduct.fdcFoodCategory,
+            suggestedCategory: receivingProduct.suggestedCategory,
+            categorySource: receivingProduct.categorySource,
+            categoryConfidence: receivingProduct.categoryConfidence,
           },
           lot: {
             itemName: draft.itemName,
             quantity: Number(draft.quantity),
             unit: draft.unit,
             category: draft.category,
-            subcategory: lookup.result.subcategory,
+            subcategory: receivingProduct.subcategory,
             storageType: draft.storageType,
             sourceType: draft.sourceType,
             date: draft.date || null,
@@ -332,7 +375,11 @@ export function ReceiveWorkspace() {
       });
 
       if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
         setSaveStatus("error");
+        setSaveError(body?.error ?? "Save failed.");
         return;
       }
 
@@ -340,6 +387,7 @@ export function ReceiveWorkspace() {
       setReviewConfirmed(false);
     } catch {
       setSaveStatus("error");
+      setSaveError("Save failed.");
     }
   }
 
@@ -506,6 +554,21 @@ export function ReceiveWorkspace() {
               <dd>{lookup.result.source}</dd>
             </div>
           </dl>
+        ) : draft.itemName.trim() ? (
+          <dl className="mt-3 grid gap-3 text-sm">
+            <div>
+              <dt className="text-xs text-muted">Name</dt>
+              <dd className="font-medium">{draft.itemName}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted">Category</dt>
+              <dd>{draft.category}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted">Source</dt>
+              <dd>manual</dd>
+            </div>
+          </dl>
         ) : (
           <p className="mt-3 text-sm text-muted">No product selected.</p>
         )}
@@ -523,7 +586,7 @@ export function ReceiveWorkspace() {
                     ...current,
                     itemName: event.target.value,
                   }));
-                  setReviewConfirmed(false);
+                  resetReviewState();
                 }}
                 className="h-10 rounded-panel border border-border bg-surface px-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               />
@@ -535,12 +598,12 @@ export function ReceiveWorkspace() {
                 <input
                   value={draft.quantity}
                   onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      quantity: event.target.value,
-                    }));
-                    setReviewConfirmed(false);
-                  }}
+                  setDraft((current) => ({
+                    ...current,
+                    quantity: event.target.value,
+                  }));
+                  resetReviewState();
+                }}
                   inputMode="decimal"
                   className="h-10 rounded-panel border border-border bg-surface px-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 />
@@ -550,12 +613,12 @@ export function ReceiveWorkspace() {
                 <select
                   value={draft.unit}
                   onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      unit: event.target.value,
-                    }));
-                    setReviewConfirmed(false);
-                  }}
+                  setDraft((current) => ({
+                    ...current,
+                    unit: event.target.value,
+                  }));
+                  resetReviewState();
+                }}
                   className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
                   {UNITS.map((unit) => (
@@ -576,7 +639,7 @@ export function ReceiveWorkspace() {
                     ...current,
                     category: event.target.value,
                   }));
-                  setReviewConfirmed(false);
+                  resetReviewState();
                 }}
                 className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
@@ -594,12 +657,12 @@ export function ReceiveWorkspace() {
                 <select
                   value={draft.storageType}
                   onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      storageType: event.target.value,
-                    }));
-                    setReviewConfirmed(false);
-                  }}
+                  setDraft((current) => ({
+                    ...current,
+                    storageType: event.target.value,
+                  }));
+                  resetReviewState();
+                }}
                   className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
                   {STORAGE_TYPES.map((storageType) => (
@@ -614,12 +677,12 @@ export function ReceiveWorkspace() {
                 <input
                   value={draft.date}
                   onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      date: event.target.value,
-                    }));
-                    setReviewConfirmed(false);
-                  }}
+                  setDraft((current) => ({
+                    ...current,
+                    date: event.target.value,
+                  }));
+                  resetReviewState();
+                }}
                   type="date"
                   className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 />
@@ -635,7 +698,7 @@ export function ReceiveWorkspace() {
                     ...current,
                     sourceType: event.target.value,
                   }));
-                  setReviewConfirmed(false);
+                  resetReviewState();
                 }}
                 className="h-10 rounded-panel border border-border bg-surface px-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
@@ -655,7 +718,7 @@ export function ReceiveWorkspace() {
                     ...current,
                     redistributionAllowed: event.target.checked,
                   }));
-                  setReviewConfirmed(false);
+                  resetReviewState();
                 }}
                 type="checkbox"
                 className="size-4 accent-accent"
@@ -690,8 +753,8 @@ export function ReceiveWorkspace() {
             {saveStatus === "saved" ? (
               <p className="text-sm font-medium text-success">Saved</p>
             ) : null}
-            {saveStatus === "error" ? (
-              <p className="text-sm text-danger">Save failed.</p>
+            {saveStatus === "error" && saveError ? (
+              <p className="text-sm text-danger">{saveError}</p>
             ) : null}
           </div>
         </div>
