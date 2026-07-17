@@ -217,7 +217,7 @@ Tasks are split for two people working in parallel after the shared contract is 
     - Export products, lots, movements, listings, requests, transfers, classification events, and policy records.
     - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-  - [ ] 11.2 Add audit trail views
+  - [x] 11.2 Add audit trail views
     - Show classification corrections and transfer traceability from source lot to destination lot.
     - _Requirements: 5.2, 9.5, 11.3_
 

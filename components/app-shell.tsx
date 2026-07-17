@@ -3,6 +3,7 @@ import {
   Archive,
   ClipboardCheck,
   Download,
+  GitBranch,
   LayoutDashboard,
   PackagePlus,
 } from "lucide-react";
@@ -16,6 +17,7 @@ const navItems = [
   { href: "/expiring", label: "Expiring", icon: ClipboardCheck },
   { href: "/review", label: "Review", icon: LayoutDashboard },
   { href: "/exports", label: "Exports", icon: Download },
+  { href: "/audit", label: "Audit", icon: GitBranch },
 ];
 
 export function AppShell({
