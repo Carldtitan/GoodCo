@@ -38,6 +38,16 @@ export const STORAGE_TYPES = [
   "ambient_short_shelf_life",
 ] as const;
 
+export const UNITS = ["each", "case", "box", "lb", "oz", "gal"] as const;
+
+export const SOURCE_TYPES = [
+  "food_bank",
+  "retail_rescue",
+  "direct_donation",
+  "purchased",
+  "unknown",
+] as const;
+
 export const DATE_LABEL_TYPES = [
   "best_by",
   "use_by",
