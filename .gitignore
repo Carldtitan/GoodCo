@@ -10,3 +10,4 @@ out/
 coverage/
 .env.test
 tsconfig.tsbuildinfo
+.vercel
